@@ -1,0 +1,3 @@
+usr/lib/${DEB_HOST_MULTIARCH}/qt6/qml/QtScxml/libdeclarative_scxmlplugin.so
+usr/lib/${DEB_HOST_MULTIARCH}/qt6/qml/QtScxml/plugins.qmltypes
+usr/lib/${DEB_HOST_MULTIARCH}/qt6/qml/QtScxml/qmldir

@@ -1,0 +1,31 @@
+# Lintian gives a false positive for the globbing order.
+# See https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=970274
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/scxml/calculator-qml/doc/src/calculator-qml.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/scxml/calculator-widgets/doc/src/calculator.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/scxml/ftpclient/doc/src/ftpclient.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/scxml/invoke-dynamic/doc/src/invoke-dynamic.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/scxml/invoke-static/doc/src/invoke-static.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/scxml/mediaplayer-qml-cppdatamodel/doc/src/mediaplayer-qml-cppdatamodel.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/scxml/mediaplayer-qml-dynamic/doc/src/mediaplayer-qml-dynamic.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/scxml/mediaplayer-qml-static/doc/src/mediaplayer-qml-static.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/scxml/mediaplayer-widgets-dynamic/doc/src/mediaplayer-widgets-dynamic.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/scxml/mediaplayer-widgets-static/doc/src/mediaplayer-widgets-static.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/scxml/pinball/doc/src/pinball.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/scxml/sudoku/doc/src/sudoku.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/scxml/trafficlight-qml-dynamic/doc/src/trafficlight-qml-dynamic.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/scxml/trafficlight-qml-simple/doc/src/trafficlight-qml-simple.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/scxml/trafficlight-qml-static/doc/src/trafficlight-qml-static.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/scxml/trafficlight-widgets-dynamic/doc/src/trafficlight-widgets-dynamic.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/scxml/trafficlight-widgets-static/doc/src/trafficlight-widgets-static.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/statemachine/doc/src/animatedtiles.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/statemachine/doc/src/eventtransitions.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/statemachine/doc/src/factorial.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/statemachine/doc/src/moveblocks.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/statemachine/doc/src/padnavigator.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/statemachine/doc/src/pingpong.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/statemachine/doc/src/rogue.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/statemachine/doc/src/states.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/statemachine/doc/src/stickman.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/statemachine/doc/src/sub-attaq.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/statemachine/doc/src/trafficlight.qdoc
+qt6-scxml source: globbing-patterns-out-of-order examples/* *.qdoc examples/statemachine/doc/src/twowaybutton.qdoc
