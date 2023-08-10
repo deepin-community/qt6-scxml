@@ -1,4 +1,3 @@
-
 #####################################################################
 ## qscxmlc Tool:
 #####################################################################
@@ -8,6 +7,7 @@ qt_internal_include_in_repo_target_set(qtscxml)
 qt_get_tool_target_name(target_name qscxmlc)
 qt_internal_add_tool(${target_name}
     TOOLS_TARGET Scxml
+    INSTALL_DIR "${INSTALL_LIBEXECDIR}"
     SOURCES
         ../../src/scxml/qscxmlcompiler.cpp ../../src/scxml/qscxmlcompiler.h ../../src/scxml/qscxmlcompiler_p.h
         ../../src/scxml/qscxmlerror.cpp ../../src/scxml/qscxmlerror.h
@@ -31,6 +31,7 @@ qt_internal_add_tool(${target_name}
     LIBRARIES
         Qt::CorePrivate
 )
+qt_internal_return_unless_building_tools()
 
 set_property(SOURCE ../../src/scxml/qscxmlerror.h PROPERTY SKIP_AUTOMOC ON)
 set_property(SOURCE ../../src/scxml/qscxmlcompiler.cpp PROPERTY SKIP_AUTOMOC ON)

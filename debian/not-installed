@@ -18,4 +18,3 @@ usr/lib/${DEB_HOST_MULTIARCH}/qt6/mkspecs/modules/qt_lib_scxml_private.pri
 usr/lib/${DEB_HOST_MULTIARCH}/qt6/mkspecs/modules/qt_lib_scxmlqml_private.pri
 usr/lib/${DEB_HOST_MULTIARCH}/qt6/mkspecs/modules/qt_lib_statemachine_private.pri
 usr/lib/${DEB_HOST_MULTIARCH}/qt6/mkspecs/modules/qt_lib_statemachineqml_private.pri
-usr/lib/${DEB_HOST_MULTIARCH}/qt6/plugins/scxmldatamodel/libqscxmlecmascriptdatamodel.so

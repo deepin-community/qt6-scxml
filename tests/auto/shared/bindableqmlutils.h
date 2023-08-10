@@ -1,30 +1,5 @@
-/****************************************************************************
-**
-** Copyright (C) 2021 The Qt Company Ltd.
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of the QtScxml module of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:GPL-EXCEPT$
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3 as published by the Free Software
-** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
-** included in the packaging of this file. Please review the following
-** information to ensure the GNU General Public License requirements will
-** be met: https://www.gnu.org/licenses/gpl-3.0.html.
-**
-** $QT_END_LICENSE$
-**
-****************************************************************************/
+// Copyright (C) 2021 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #ifndef BINDABLEQMLUTILS_H
 #define BINDABLEQMLUTILS_H
@@ -72,12 +47,12 @@ void testManipulableQmlListBasics(TestedClass& testedClass,
     listRef.append(data1);
     QVERIFY2(listRef.count() == 1, qPrintable(id));
     if (changedSpy)
-        QVERIFY2(changedSpy->count() == 1, qPrintable(id + ", actual: " + QString::number(changedSpy->count())));
+        QVERIFY2(changedSpy->size() == 1, qPrintable(id + ", actual: " + QString::number(changedSpy->size())));
     QVERIFY2(listRef.at(0) == data1, qPrintable(id));
     listRef.clear();
     QVERIFY2(listRef.count() == 0, qPrintable(id));
     if (changedSpy)
-        QVERIFY2(changedSpy->count() == 2, qPrintable(id + ", actual: " + QString::number(changedSpy->count())));
+        QVERIFY2(changedSpy->size() == 2, qPrintable(id + ", actual: " + QString::number(changedSpy->size())));
 
     // Bind to the property and verify that the bindings reflect the listproperty changes
     QProperty<bool> data1InList([&](){
@@ -103,35 +78,35 @@ void testManipulableQmlListBasics(TestedClass& testedClass,
 
     listRef.append(data1);
     if (changedSpy)
-        QVERIFY2(changedSpy->count() == 3, qPrintable(id + ", actual: " + QString::number(changedSpy->count())));
+        QVERIFY2(changedSpy->size() == 3, qPrintable(id + ", actual: " + QString::number(changedSpy->size())));
     QVERIFY2(data1InList, qPrintable(id));
     QVERIFY2(!data2InList, qPrintable(id));
 
     listRef.append(data2);
     if (changedSpy)
-        QVERIFY2(changedSpy->count() == 4, qPrintable(id + ", actual: " + QString::number(changedSpy->count())));
+        QVERIFY2(changedSpy->size() == 4, qPrintable(id + ", actual: " + QString::number(changedSpy->size())));
     QVERIFY2(data1InList, qPrintable(id));
     QVERIFY2(data2InList, qPrintable(id));
-    QVERIFY2(listRef.count() == 2, qPrintable(id + ", actual: " + QString::number(changedSpy->count())));
+    QVERIFY2(listRef.count() == 2, qPrintable(id + ", actual: " + QString::number(changedSpy->size())));
 
     listRef.clear();
     if (changedSpy)
-        QVERIFY2(changedSpy->count() == 5, qPrintable(id + ", actual: " + QString::number(changedSpy->count())));
+        QVERIFY2(changedSpy->size() == 5, qPrintable(id + ", actual: " + QString::number(changedSpy->size())));
     QVERIFY2(!data1InList, qPrintable(id));
     QVERIFY2(!data2InList, qPrintable(id));
-    QVERIFY2(listRef.count() == 0, qPrintable(id + ", actual: " + QString::number(changedSpy->count())));
+    QVERIFY2(listRef.count() == 0, qPrintable(id + ", actual: " + QString::number(changedSpy->size())));
 
     listRef.append(data1);
     listRef.replace(0, data2);
     if (changedSpy)
-        QVERIFY2(changedSpy->count() == 7, qPrintable(id + ", actual: " + QString::number(changedSpy->count())));
+        QVERIFY2(changedSpy->size() == 7, qPrintable(id + ", actual: " + QString::number(changedSpy->size())));
     QVERIFY2(!data1InList, qPrintable(id));
     QVERIFY2(data2InList, qPrintable(id));
-    QVERIFY2(listRef.count() == 1, qPrintable(id + ", actual: " + QString::number(changedSpy->count())));
+    QVERIFY2(listRef.count() == 1, qPrintable(id + ", actual: " + QString::number(changedSpy->size())));
 
     listRef.removeLast();
     if (changedSpy)
-        QVERIFY2(changedSpy->count() == 8, qPrintable(id + ", actual: " + QString::number(changedSpy->count())));
+        QVERIFY2(changedSpy->size() == 8, qPrintable(id + ", actual: " + QString::number(changedSpy->size())));
     QVERIFY2(!data1InList, qPrintable(id));
     QVERIFY2(!data2InList, qPrintable(id));
 

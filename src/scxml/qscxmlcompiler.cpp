@@ -1,41 +1,5 @@
-/****************************************************************************
-**
-** Copyright (C) 2016 The Qt Company Ltd.
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of the QtScxml module of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:LGPL$
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL3 included in the
-** packaging of this file. Please review the following information to
-** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or (at your option) the GNU General
-** Public license version 3 or any later version approved by the KDE Free
-** Qt Foundation. The licenses are as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
-** included in the packaging of this file. Please review the following
-** information to ensure the GNU General Public License requirements will
-** be met: https://www.gnu.org/licenses/gpl-2.0.html and
-** https://www.gnu.org/licenses/gpl-3.0.html.
-**
-** $QT_END_LICENSE$
-**
-****************************************************************************/
+// Copyright (C) 2016 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
 
 #include "qscxmlcompiler_p.h"
 #include "qscxmlexecutablecontent_p.h"
@@ -55,6 +19,8 @@
 
 #include <private/qmetaobjectbuilder_p.h>
 #endif // BUILD_QSCXMLC
+
+#include <QtCore/qmap.h>
 
 #include <functional>
 
@@ -87,7 +53,7 @@ public:
 
         doc->isVerified = true;
         m_doc = doc;
-        for (DocumentModel::AbstractState *state : qAsConst(doc->allStates)) {
+        for (DocumentModel::AbstractState *state : std::as_const(doc->allStates)) {
             if (state->id.isEmpty()) {
                 continue;
 #ifndef QT_NO_DEBUG
@@ -118,7 +84,7 @@ private:
             }
         } else {
             QList<DocumentModel::AbstractState *> initialStates;
-            for (const QString &initial : qAsConst(scxml->initial)) {
+            for (const QString &initial : std::as_const(scxml->initial)) {
                 if (DocumentModel::AbstractState *s = m_stateById.value(initial))
                     initialStates.append(s);
                 else
@@ -156,7 +122,7 @@ private:
             } else {
                 Q_ASSERT(state->type == DocumentModel::State::Normal);
                 QList<DocumentModel::AbstractState *> initialStates;
-                for (const QString &initialState : qAsConst(state->initial)) {
+                for (const QString &initialState : std::as_const(state->initial)) {
                     if (DocumentModel::AbstractState *s = m_stateById.value(initialState)) {
                         initialStates.append(s);
                     } else {
@@ -207,7 +173,7 @@ private:
 
         if (int size = transition->targets.size())
             transition->targetStates.reserve(size);
-        for (const QString &target : qAsConst(transition->targets)) {
+        for (const QString &target : std::as_const(transition->targets)) {
             if (DocumentModel::AbstractState *s = m_stateById.value(target)) {
                 if (transition->targetStates.contains(s)) {
                     error(transition->xmlLocation, QStringLiteral("duplicate target '%1'").arg(target));
@@ -218,7 +184,7 @@ private:
                 error(transition->xmlLocation, QStringLiteral("unknown state '%1' in target").arg(target));
             }
         }
-        for (const QString &event : qAsConst(transition->events))
+        for (const QString &event : std::as_const(transition->events))
             checkEvent(event, transition->xmlLocation, AllowWildCards);
 
         m_parentNodes.append(transition);
@@ -233,7 +199,7 @@ private:
     bool visit(DocumentModel::HistoryState *state) override
     {
         bool seenTransition = false;
-        for (DocumentModel::StateOrTransition *sot : qAsConst(state->children)) {
+        for (DocumentModel::StateOrTransition *sot : std::as_const(state->children)) {
             if (DocumentModel::State *s = sot->asState()) {
                 error(s->xmlLocation, QStringLiteral("history state cannot have substates"));
             } else if (DocumentModel::Transition *t = sot->asTransition()) {
@@ -298,7 +264,7 @@ private:
             if (!isLetter(c) && c != QLatin1Char('_'))
                 return false;
         }
-        for (int ei = id.length(); i != ei; ++i) {
+        for (int ei = id.size(); i != ei; ++i) {
             const QChar c = id.at(i);
             if (isLetter(c) || c.isDigit() || c == QLatin1Char('.') || c == QLatin1Char('-')
                     || c == QLatin1Char('_') || isNameTail(c))
@@ -370,12 +336,12 @@ private:
             if (part.isEmpty())
                 return false;
 
-            if (wildCardMode == AllowWildCards && part.length() == 1
+            if (wildCardMode == AllowWildCards && part.size() == 1
                     && part.at(0) == QLatin1Char('*')) {
                 continue;
             }
 
-            for (int i = 0, ei = part.length(); i != ei; ++i) {
+            for (int i = 0, ei = part.size(); i != ei; ++i) {
                 const QChar c = part.at(i);
                 if (!isLetter(c) && !c.isDigit() && c != QLatin1Char('-') && c != QLatin1Char('_')
                         && c != QLatin1Char(':')) {
@@ -403,7 +369,7 @@ private:
         const auto &allChildren = allChildrenOfContainer(container);
 
         QList<DocumentModel::AbstractState *> childStates;
-        for (DocumentModel::StateOrTransition *child : qAsConst(allChildren)) {
+        for (DocumentModel::StateOrTransition *child : std::as_const(allChildren)) {
             if (DocumentModel::State *s = child->asState())
                 return s;
             else if (DocumentModel::HistoryState *h = child->asHistoryState())
@@ -418,7 +384,7 @@ private:
         const auto &allChildren = allChildrenOfContainer(container);
 
         QList<DocumentModel::AbstractState *> childStates;
-        for (DocumentModel::StateOrTransition *child : qAsConst(allChildren)) {
+        for (DocumentModel::StateOrTransition *child : std::as_const(allChildren)) {
             if (DocumentModel::State *s = child->asState())
                 childStates.append(s);
             else if (DocumentModel::HistoryState *h = child->asHistoryState())
@@ -487,7 +453,7 @@ class DynamicStateMachinePrivate : public QScxmlStateMachinePrivate
 {
     struct DynamicMetaObject : public QAbstractDynamicMetaObject
     {
-        QAbstractDynamicMetaObject *toDynamicMetaObject(QObject *) override
+        QMetaObject *toDynamicMetaObject(QObject *) override
         {
             return this;
         }
@@ -1195,7 +1161,7 @@ void DocumentModel::Param::accept(DocumentModel::NodeVisitor *visitor)
 void DocumentModel::DoneData::accept(DocumentModel::NodeVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (Param *param : qAsConst(params))
+        for (Param *param : std::as_const(params))
             param->accept(visitor);
     }
     visitor->endVisit(this);
@@ -1268,7 +1234,7 @@ void DocumentModel::State::accept(DocumentModel::NodeVisitor *visitor)
         visitor->visit(onExit);
         if (doneData)
             doneData->accept(visitor);
-        for (Invoke *invoke : qAsConst(invokes))
+        for (Invoke *invoke : std::as_const(invokes))
             invoke->accept(visitor);
     }
     visitor->endVisit(this);
@@ -1443,7 +1409,7 @@ bool QScxmlCompilerPrivate::preReadElementScxml()
         } else {
             int lastColon = datamodel.lastIndexOf(QLatin1Char(':'));
             if (lastColon == -1) {
-                lastColon = datamodel.length();
+                lastColon = datamodel.size();
             } else {
                 scxml->cppDataModelHeaderName = datamodel.mid(lastColon + 1).toString();
             }
@@ -2199,7 +2165,7 @@ bool QScxmlCompilerPrivate::readElement()
         return parseSubElement(i, m_reader, m_fileName);
     }
 
-    if (elementKind != ParserState::Scxml && !m_stack.count()) {
+    if (elementKind != ParserState::Scxml && !m_stack.size()) {
         addError(QStringLiteral("misplaced %1").arg(currentTag.toString()));
         return false;
     }
@@ -2416,12 +2382,12 @@ QScxmlCompilerPrivate::ParserState &QScxmlCompilerPrivate::current()
 
 QScxmlCompilerPrivate::ParserState &QScxmlCompilerPrivate::previous()
 {
-    return m_stack[m_stack.count() - 2];
+    return m_stack[m_stack.size() - 2];
 }
 
 bool QScxmlCompilerPrivate::hasPrevious() const
 {
-    return m_stack.count() > 1;
+    return m_stack.size() > 1;
 }
 
 bool QScxmlCompilerPrivate::checkAttributes(const QXmlStreamAttributes &attributes,

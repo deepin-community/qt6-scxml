@@ -1,1 +1,2 @@
 usr/lib/${DEB_HOST_MULTIARCH}/libQt6Scxml.so.*
+usr/lib/${DEB_HOST_MULTIARCH}/qt6/plugins/scxmldatamodel/libqscxmlecmascriptdatamodel.so

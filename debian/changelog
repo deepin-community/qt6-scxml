@@ -1,11 +1,146 @@
-qt6-scxml (6.2.4.1-1+dde) stable; urgency=medium
+qt6-scxml (6.4.2-4) unstable; urgency=medium
 
-  * Adapt to V23.
+  * Team upload to unstable.
 
- -- Lu YaNing <luyaning@uniontech.com>  Sun, 09 Oct 2022 16:50:30 +0800
+ -- Lisandro Damián Nicanor Pérez Meyer <lisandro@debian.org>  Tue, 01 Aug 2023 13:33:41 -0300
 
-qt6-scxml (6.2.4-1+dde) stable; urgency=medium
+qt6-scxml (6.4.2-3) experimental; urgency=medium
 
-  * ['Rebuild  against by  current gcc 11.2']
+  * Team upload to unstable.
 
- -- Deepin Packages Builder <packages@deepin.org>  Wed, 31 Aug 2022 14:58:56 +0800
+  [ Patrick Franz ]
+  * Remove build-dependency on libqt6opengl6-dev as it has been merged
+    into qt6-base-dev.
+
+  [ Lisandro Damián Nicanor Pérez Meyer ]
+  * Add documentation and examples packages (Closes: #1042304).
+
+ -- Lisandro Damián Nicanor Pérez Meyer <lisandro@debian.org>  Fri, 28 Jul 2023 18:30:44 -0300
+
+qt6-scxml (6.4.2-2) unstable; urgency=medium
+
+  [ Patrick Franz ]
+  * Install the ECMAScript Data Model plugin (Closes: #1035066).
+
+ -- Patrick Franz <deltaone@debian.org>  Mon, 01 May 2023 01:53:51 +0200
+
+qt6-scxml (6.4.2-1) unstable; urgency=medium
+
+  [ Patrick Franz ]
+  * Switch to the official 6.4.2 tarball, the tarball is the same.
+
+ -- Patrick Franz <deltaone@debian.org>  Tue, 24 Jan 2023 12:46:29 +0100
+
+qt6-scxml (6.4.2~rc1-2) unstable; urgency=medium
+
+  [ Patrick Franz ]
+  * Upload to unstable.
+
+ -- Patrick Franz <deltaone@debian.org>  Fri, 30 Dec 2022 16:58:50 +0100
+
+qt6-scxml (6.4.2~rc1-1) experimental; urgency=medium
+
+  [ Lisandro Damián Nicanor Pérez Meyer ]
+  * New upstream release.
+    - Bump Qt build dependencies.
+  * Bump standards version to 4.6.2, no changes required.
+
+ -- Patrick Franz <deltaone@debian.org>  Tue, 27 Dec 2022 22:27:25 +0100
+
+qt6-scxml (6.4.1-2) experimental; urgency=medium
+
+  [ Patrick Franz ]
+  * Pass QT_HOST_PATH to cmake in cross-builds, thx to Helmut Grohne
+    (Closes: #1025064).
+
+ -- Patrick Franz <deltaone@debian.org>  Thu, 08 Dec 2022 01:32:41 +0100
+
+qt6-scxml (6.4.1-1) experimental; urgency=medium
+
+  [ Patrick Franz ]
+  * New upstream release (6.4.1).
+  * Bump Qt B-Ds to 6.4.1.
+
+ -- Patrick Franz <deltaone@debian.org>  Thu, 17 Nov 2022 20:15:42 +0100
+
+qt6-scxml (6.4.0-2) experimental; urgency=medium
+
+  [ Patrick Franz ]
+  * Enable link time optimization (Closes: #1015624).
+
+ -- Patrick Franz <deltaone@debian.org>  Sat, 12 Nov 2022 15:41:01 +0100
+
+qt6-scxml (6.4.0-1) experimental; urgency=medium
+
+  [ Lisandro Damián Nicanor Pérez Meyer ]
+  * Bump minimum CMake version in order to get pkg-config's .pc files.
+
+  [ Patrick Franz ]
+  * Increase CMake verbosity level.
+  * New upstream release (6.4.0).
+  * Bump Qt B-Ds to 6.4.0.
+  * Update list of installed files.
+  * Update symbols from buildlogs.
+
+ -- Patrick Franz <deltaone@debian.org>  Sat, 15 Oct 2022 11:54:23 +0200
+
+qt6-scxml (6.3.1-2) unstable; urgency=medium
+
+  [ Patrick Franz ]
+  * Upload to unstable.
+
+ -- Patrick Franz <deltaone@debian.org>  Mon, 15 Aug 2022 19:23:40 +0200
+
+qt6-scxml (6.3.1-1) experimental; urgency=medium
+
+  [ Patrick Franz ]
+  * New upstream release (6.3.1).
+  * Bump Qt B-Ds to 6.3.1.
+  * Bump Standards-Version to 4.6.1 (no changes needed).
+  * Update list of installed files.
+
+ -- Patrick Franz <deltaone@debian.org>  Sun, 17 Jul 2022 18:28:01 +0200
+
+qt6-scxml (6.3.0-1) experimental; urgency=medium
+
+  [ Patrick Franz ]
+  * New upstream release (6.3.0).
+  * Bump Qt B-Ds to 6.3.0.
+  * Update list of installed files.
+
+ -- Patrick Franz <deltaone@debian.org>  Wed, 15 Jun 2022 22:16:49 +0200
+
+qt6-scxml (6.2.4-2) unstable; urgency=medium
+
+  [ Patrick Franz ]
+  * Upload to unstable.
+
+ -- Patrick Franz <deltaone@debian.org>  Fri, 22 Apr 2022 20:07:13 +0200
+
+qt6-scxml (6.2.4-1) experimental; urgency=medium
+
+  [ Patrick Franz ]
+  * New upstream release (6.2.4).
+  * Bump Qt B-Ds to 6.2.4.
+
+ -- Patrick Franz <deltaone@debian.org>  Thu, 31 Mar 2022 22:59:47 +0200
+
+qt6-scxml (6.2.2-3) unstable; urgency=medium
+
+  [ Patrick Franz ]
+  * Upload to unstable.
+
+ -- Patrick Franz <deltaone@debian.org>  Tue, 15 Feb 2022 22:46:48 +0100
+
+qt6-scxml (6.2.2-2) experimental; urgency=medium
+
+  [ Patrick Franz ]
+  * Source-only upload to experimental.
+
+ -- Patrick Franz <deltaone@debian.org>  Thu, 30 Dec 2021 19:47:49 +0100
+
+qt6-scxml (6.2.2-1) experimental; urgency=medium
+
+  * Initial release (Closes: #999893)
+
+ -- Patrick Franz <deltaone@debian.org>  Thu, 18 Nov 2021 08:26:37 +0100

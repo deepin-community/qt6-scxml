@@ -1,29 +1,5 @@
-/****************************************************************************
-**
-** Copyright (C) 2021 The Qt Company Ltd.
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of the documentation of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:FDL$
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** GNU Free Documentation License Usage
-** Alternatively, this file may be used under the terms of the GNU Free
-** Documentation License version 1.3 as published by the Free Software
-** Foundation and appearing in the file included in the packaging of
-** this file. Please review the following information to ensure
-** the GNU Free Documentation License version 1.3 requirements
-** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
-** $QT_END_LICENSE$
-**
-****************************************************************************/
+// Copyright (C) 2021 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
     \page qtstatemachine-index.html
@@ -33,28 +9,23 @@
     The State Machine framework provides classes for creating and executing
     state graphs.
 
-    \section1 Getting Started
+    \section1 Using the Module
 
-    To include the definitions of the module's classes, use the following directive:
+    \section2 QML API
 
-    \code
-    #include <QStateMachine>
-    \endcode
+    \include {module-use.qdocinc} {using the qml api} {QtQml.StateMachine}
 
-    To import the QML types into your application, use the following import statement
-    in your .qml file:
+    \section2 C++ API
 
-    \qml
-    import QtQml.StateMachine
-    \endqml
+    \include {module-use.qdocinc} {using the c++ api}
 
-    To link against the module:
+    \section3 Building with CMake
 
-    When using CMake add to \e CMakeLists.txt:
-    \include qtstatemachine-module-use.qdocinc cmakebuild
+    \include {module-use.qdocinc} {building with cmake} {StateMachine}
 
-    When using qmake add to the project \e .pro file:
-    \include qtstatemachine-module-use.qdocinc qmakebuild
+    \section3 Building with qmake
+
+    \include {module-use.qdocinc} {building with cmake} {statemachine}
 
     \section1 Articles and Guides
 

@@ -1,41 +1,5 @@
-/****************************************************************************
-**
-** Copyright (C) 2016 The Qt Company Ltd.
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of the QtCore module of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:LGPL$
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL3 included in the
-** packaging of this file. Please review the following information to
-** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or (at your option) the GNU General
-** Public license version 3 or any later version approved by the KDE Free
-** Qt Foundation. The licenses are as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
-** included in the packaging of this file. Please review the following
-** information to ensure the GNU General Public License requirements will
-** be met: https://www.gnu.org/licenses/gpl-2.0.html and
-** https://www.gnu.org/licenses/gpl-3.0.html.
-**
-** $QT_END_LICENSE$
-**
-****************************************************************************/
+// Copyright (C) 2016 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
 
 #include "qstatemachine.h"
 #include "qstate.h"
@@ -553,7 +517,7 @@ QList<QAbstractTransition*> QStateMachinePrivate::selectTransitions(QEvent *even
     Q_Q(const QStateMachine);
 
     QVarLengthArray<QAbstractState *> configuration_sorted;
-    for (QAbstractState *s : qAsConst(configuration)) {
+    for (QAbstractState *s : std::as_const(configuration)) {
         if (isAtomic(s))
             configuration_sorted.append(s);
     }
@@ -561,7 +525,7 @@ QList<QAbstractTransition*> QStateMachinePrivate::selectTransitions(QEvent *even
 
     QList<QAbstractTransition*> enabledTransitions;
     const_cast<QStateMachine *>(q)->beginSelectTransitions(event);
-    for (QAbstractState *state : qAsConst(configuration_sorted)) {
+    for (QAbstractState *state : std::as_const(configuration_sorted)) {
         QList<QState *> lst = getProperAncestors(state, nullptr);
         if (QState *grp = toStandardState(state))
             lst.prepend(grp);
@@ -628,7 +592,7 @@ void QStateMachinePrivate::removeConflictingTransitions(QList<QAbstractTransitio
     filteredTransitions.reserve(enabledTransitions.size());
     std::sort(enabledTransitions.begin(), enabledTransitions.end(), transitionStateEntryLessThan);
 
-    for (QAbstractTransition *t1 : qAsConst(enabledTransitions)) {
+    for (QAbstractTransition *t1 : std::as_const(enabledTransitions)) {
         bool t1Preempted = false;
         const QSet<QAbstractState*> exitSetT1 = computeExitSet_Unordered(t1, cache);
         QList<QAbstractTransition*>::iterator t2It = filteredTransitions.begin();
@@ -786,7 +750,7 @@ QSet<QAbstractState*> QStateMachinePrivate::computeExitSet_Unordered(QAbstractTr
         Q_ASSERT(domain != nullptr);
     }
 
-    for (QAbstractState* s : qAsConst(configuration)) {
+    for (QAbstractState* s : std::as_const(configuration)) {
         if (isDescendant(s, domain))
             statesToExit.insert(s);
     }
@@ -1114,9 +1078,9 @@ void QStateMachinePrivate::addDescendantStatesToEnter(QAbstractState *state,
             if (defaultHistoryContent.isEmpty()) {
                 setError(QStateMachine::NoDefaultStateInHistoryStateError, h);
             } else {
-                for (QAbstractState *s : qAsConst(defaultHistoryContent))
+                for (QAbstractState *s : std::as_const(defaultHistoryContent))
                     addDescendantStatesToEnter(s, statesToEnter, statesForDefaultEntry);
-                for (QAbstractState *s : qAsConst(defaultHistoryContent))
+                for (QAbstractState *s : std::as_const(defaultHistoryContent))
                     addAncestorStatesToEnter(s, state->parentState(), statesToEnter, statesForDefaultEntry);
 #ifdef QSTATEMACHINE_DEBUG
                 qDebug() << q_func() << ": initial history targets for" << state << ':' << defaultHistoryContent;

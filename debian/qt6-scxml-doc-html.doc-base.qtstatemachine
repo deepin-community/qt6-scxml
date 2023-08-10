@@ -1,0 +1,9 @@
+Document: qt6-statemachine-manual
+Title: Qt 6 state machine
+Author: The Qt Company Ltd
+Abstract: This is the HTML documentation for Qt 6 state machine
+Section: Programming/C++
+
+Format: HTML
+Index: /usr/share/doc/qt6-scxml-doc-html/html/qtstatemachine-index.html
+Files: /usr/share/doc/qt6-scxml-doc-html/html/*.html
