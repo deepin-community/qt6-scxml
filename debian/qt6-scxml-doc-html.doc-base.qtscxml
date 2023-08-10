@@ -1,0 +1,9 @@
+Document: qt6-scxml-manual
+Title: Qt 6 SCXML
+Author: The Qt Company Ltd
+Abstract: This is the HTML documentation for Qt 6 SCXML
+Section: Programming/C++
+
+Format: HTML
+Index: /usr/share/doc/qt6-scxml-doc-html/html/qtscxml/qtscxml-index.html
+Files: /usr/share/doc/qt6-scxml-doc-html/html/qtscxml/*.html

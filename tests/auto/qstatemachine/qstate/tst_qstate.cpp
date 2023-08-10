@@ -1,30 +1,5 @@
-/****************************************************************************
-**
-** Copyright (C) 2016 The Qt Company Ltd.
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of the test suite module of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:GPL-EXCEPT$
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3 as published by the Free Software
-** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
-** included in the packaging of this file. Please review the following
-** information to ensure the GNU General Public License requirements will
-** be met: https://www.gnu.org/licenses/gpl-3.0.html.
-**
-** $QT_END_LICENSE$
-**
-****************************************************************************/
+// Copyright (C) 2016 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <QtTest/QtTest>
 
@@ -194,7 +169,7 @@ void tst_QState::transitions()
     QAbstractTransition *t1_1 = s1.addTransition(this, &tst_QState::destroyed, &s2);
     QVERIFY(t1 != 0);
     QVERIFY(t1_1 != 0);
-    QCOMPARE(s1.transitions().count(), 2);
+    QCOMPARE(s1.transitions().size(), 2);
     QCOMPARE(s1.transitions().first(), t1);
     QCOMPARE(s1.transitions().last(), t1_1);
     QVERIFY(s2.transitions().isEmpty());
@@ -204,11 +179,11 @@ void tst_QState::transitions()
     QVERIFY(s1.transitions().isEmpty());
 
     s1.addTransition(t1);
-    QCOMPARE(s1.transitions().count(), 1);
+    QCOMPARE(s1.transitions().size(), 1);
     QCOMPARE(s1.transitions().first(), t1);
 
     QAbstractTransition *t2 = new QEventTransition(&s1);
-    QCOMPARE(s1.transitions().count(), 2);
+    QCOMPARE(s1.transitions().size(), 2);
     QVERIFY(s1.transitions().contains(t1));
     QVERIFY(s1.transitions().contains(t2));
 
@@ -216,7 +191,7 @@ void tst_QState::transitions()
     QState *s21 = new QState(&s2);
     QAbstractTransition *t3 = s21->addTransition(this, SIGNAL(destroyed()), &s2);
     QVERIFY(s2.transitions().isEmpty());
-    QCOMPARE(s21->transitions().count(), 1);
+    QCOMPARE(s21->transitions().size(), 1);
     QCOMPARE(s21->transitions().first(), t3);
 }
 

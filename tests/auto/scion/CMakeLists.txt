@@ -1,4 +1,3 @@
-
 #####################################################################
 ## tst_scion Test:
 #####################################################################
@@ -80,6 +79,9 @@ set(scxmls_dir ../../3rdparty/scion-tests/scxml-test-framework/test)
 get_filename_component(scxmls_dir ${scxmls_dir} ABSOLUTE)
 file(GLOB_RECURSE allscxmls ${scxmls_dir}/*.scxml)
 
+_qt_internal_get_tool_wrapper_script_path(tool_wrapper)
+set(qscxmlc_bin "${tool_wrapper}" "$<TARGET_FILE:${QT_CMAKE_EXPORT_NAMESPACE}::qscxmlc>")
+
 set(scxmls)
 set(inc_list)
 set(func_list)
@@ -109,9 +111,10 @@ foreach(f ${allscxmls})
         file(TO_NATIVE_PATH ${out_cpp} native_out_cpp)
         add_custom_command(
             OUTPUT ${out_cpp} ${out_h}
-            ${QT_TOOL_PATH_SETUP_COMMAND}
-            COMMAND ${QT_CMAKE_EXPORT_NAMESPACE}::qscxmlc
-            ARGS --header ${native_out_h} --impl ${native_out_cpp} --namespace ${sn} --classname ${cn} ${f}
+            COMMAND
+                ${qscxmlc_bin} --header ${native_out_h} --impl ${native_out_cpp}
+                --namespace ${sn} --classname ${cn} ${f}
+            DEPENDS ${QT_CMAKE_EXPORT_NAMESPACE}::qscxmlc
             VERBATIM
         )
         set_source_files_properties(${out_h} ${out_cpp} PROPERTIES SKIP_AUTOMOC TRUE)

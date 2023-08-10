@@ -1,45 +1,11 @@
-/****************************************************************************
-**
-** Copyright (C) 2016 The Qt Company Ltd.
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of the QtScxml module of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:LGPL$
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL3 included in the
-** packaging of this file. Please review the following information to
-** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or (at your option) the GNU General
-** Public license version 3 or any later version approved by the KDE Free
-** Qt Foundation. The licenses are as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
-** included in the packaging of this file. Please review the following
-** information to ensure the GNU General Public License requirements will
-** be met: https://www.gnu.org/licenses/gpl-2.0.html and
-** https://www.gnu.org/licenses/gpl-3.0.html.
-**
-** $QT_END_LICENSE$
-**
-****************************************************************************/
+// Copyright (C) 2016 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
 
 #include "qscxmltabledata_p.h"
 #include "qscxmlcompiler_p.h"
 #include "qscxmlexecutablecontent_p.h"
+
+#include <QtCore/qmap.h>
 
 QT_USE_NAMESPACE
 
@@ -146,13 +112,13 @@ public:
         m_parents.reserve(32);
         m_allTransitions.resize(doc->allTransitions.size());
         m_docTransitionIndices.reserve(doc->allTransitions.size());
-        for (auto *t : qAsConst(doc->allTransitions)) {
+        for (auto *t : std::as_const(doc->allTransitions)) {
             m_docTransitionIndices.insert(t, m_docTransitionIndices.size());
         }
         m_docStatesIndices.reserve(doc->allStates.size());
         m_transitionsForState.resize(doc->allStates.size());
         m_allStates.resize(doc->allStates.size());
-        for (DocumentModel::AbstractState *s : qAsConst(doc->allStates)) {
+        for (DocumentModel::AbstractState *s : std::as_const(doc->allStates)) {
             m_docStatesIndices.insert(s, m_docStatesIndices.size());
         }
 
@@ -261,7 +227,7 @@ protected: // visitor
         }
 
         QList<DocumentModel::AbstractState *> childStates;
-        for (DocumentModel::StateOrTransition *sot : qAsConst(node->children)) {
+        for (DocumentModel::StateOrTransition *sot : std::as_const(node->children)) {
             if (DocumentModel::AbstractState *s = sot->asAbstractState()) {
                 childStates.append(s);
             }
@@ -318,13 +284,13 @@ protected: // visitor
         newState.exitInstructions = generate(state->onExit);
         if (!state->invokes.isEmpty()) {
             QList<int> factoryIds;
-            for (DocumentModel::Invoke *invoke : qAsConst(state->invokes)) {
+            for (DocumentModel::Invoke *invoke : std::as_const(state->invokes)) {
                 auto ctxt = createContext(QStringLiteral("invoke"));
                 QList<QScxmlExecutableContent::StringId> namelist;
-                for (const QString &name : qAsConst(invoke->namelist))
+                for (const QString &name : std::as_const(invoke->namelist))
                     namelist += addString(name);
                 QList<QScxmlExecutableContent::ParameterInfo> params;
-                for (DocumentModel::Param *param : qAsConst(invoke->params)) {
+                for (DocumentModel::Param *param : std::as_const(invoke->params)) {
                     QScxmlExecutableContent::ParameterInfo p;
                     p.name = addString(param->name);
                     p.expr = createEvaluatorVariant(QStringLiteral("param"), QStringLiteral("expr"),
@@ -362,7 +328,7 @@ protected: // visitor
         visit(state->children);
 
         QList<DocumentModel::AbstractState *> childStates;
-        for (DocumentModel::StateOrTransition *sot : qAsConst(state->children)) {
+        for (DocumentModel::StateOrTransition *sot : std::as_const(state->children)) {
             if (auto s = sot->asAbstractState()) {
                 childStates.append(s);
             }
@@ -420,7 +386,7 @@ protected: // visitor
         newTransition.targets = addStates(transition->targetStates);
 
         QList<int> eventIds;
-        for (const QString &event : qAsConst(transition->events))
+        for (const QString &event : std::as_const(transition->events))
             eventIds.push_back(addString(event));
 
         newTransition.events = addArray(eventIds);

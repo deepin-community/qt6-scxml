@@ -1,41 +1,5 @@
-/****************************************************************************
-**
-** Copyright (C) 2016 Ford Motor Company
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of the QtQml module of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:LGPL$
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL3 included in the
-** packaging of this file. Please review the following information to
-** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or (at your option) the GNU General
-** Public license version 3 or any later version approved by the KDE Free
-** Qt Foundation. The licenses are as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
-** included in the packaging of this file. Please review the following
-** information to ensure the GNU General Public License requirements will
-** be met: https://www.gnu.org/licenses/gpl-2.0.html and
-** https://www.gnu.org/licenses/gpl-3.0.html.
-**
-** $QT_END_LICENSE$
-**
-****************************************************************************/
+// Copyright (C) 2016 Ford Motor Company
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
 
 #include "signaltransition_p.h"
 
@@ -73,7 +37,7 @@ bool SignalTransition::eventTest(QEvent *event)
     QStateMachine::SignalEvent *e = static_cast<QStateMachine::SignalEvent*>(event);
 
     // Set arguments as context properties
-    int count = e->arguments().count();
+    int count = e->arguments().size();
     QMetaMethod metaMethod = e->sender()->metaObject()->method(e->signalIndex());
     const auto parameterNames = metaMethod.parameterNames();
     for (int i = 0; i < count; i++)
@@ -97,7 +61,7 @@ void SignalTransition::onTransition(QEvent *event)
         QVarLengthArray<QMetaType, 2> argTypes;
 
         QVariantList eventArguments = e->arguments();
-        const int argCount = eventArguments.length();
+        const int argCount = eventArguments.size();
         argValues.reserve(argCount + 1);
         argTypes.reserve(argCount + 1);
 
@@ -195,9 +159,9 @@ void SignalTransition::connectTriggered()
     QQmlData *ddata = QQmlData::get(this);
     QQmlRefPointer<QQmlContextData> ctxtdata = ddata ? ddata->outerContext : nullptr;
 
-    Q_ASSERT(m_bindings.count() == 1);
+    Q_ASSERT(m_bindings.size() == 1);
     const QV4::CompiledData::Binding *binding = m_bindings.at(0);
-    Q_ASSERT(binding->type == QV4::CompiledData::Binding::Type_Script);
+    Q_ASSERT(binding->type() == QV4::CompiledData::Binding::Type_Script);
 
     QV4::ExecutionEngine *jsEngine = QQmlEngine::contextForObject(this)->engine()->handle();
     QV4::Scope scope(jsEngine);
@@ -221,7 +185,7 @@ void SignalTransition::connectTriggered()
 
 void SignalTransitionParser::verifyBindings(const QQmlRefPointer<QV4::ExecutableCompilationUnit> &compilationUnit, const QList<const QV4::CompiledData::Binding *> &props)
 {
-    for (int ii = 0; ii < props.count(); ++ii) {
+    for (int ii = 0; ii < props.size(); ++ii) {
         const QV4::CompiledData::Binding *binding = props.at(ii);
 
         QString propName = compilationUnit->stringAt(binding->propertyNameIndex);
@@ -231,7 +195,7 @@ void SignalTransitionParser::verifyBindings(const QQmlRefPointer<QV4::Executable
             return;
         }
 
-        if (binding->type != QV4::CompiledData::Binding::Type_Script) {
+        if (binding->type() != QV4::CompiledData::Binding::Type_Script) {
             error(binding, SignalTransition::tr("SignalTransition: script expected"));
             return;
         }

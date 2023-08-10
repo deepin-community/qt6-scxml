@@ -1,41 +1,5 @@
-/****************************************************************************
-**
-** Copyright (C) 2016 The Qt Company Ltd.
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of the QtScxml module of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:LGPL$
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL3 included in the
-** packaging of this file. Please review the following information to
-** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or (at your option) the GNU General
-** Public license version 3 or any later version approved by the KDE Free
-** Qt Foundation. The licenses are as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
-** included in the packaging of this file. Please review the following
-** information to ensure the GNU General Public License requirements will
-** be met: https://www.gnu.org/licenses/gpl-2.0.html and
-** https://www.gnu.org/licenses/gpl-3.0.html.
-**
-** $QT_END_LICENSE$
-**
-****************************************************************************/
+// Copyright (C) 2016 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
 
 #include "qscxmlstatemachine_p.h"
 #include "qscxmlexecutablecontent_p.h"
@@ -765,6 +729,9 @@ void QScxmlStateMachinePrivate::attach(QScxmlStateMachineInfo *info)
 
 void QScxmlStateMachinePrivate::updateMetaCache()
 {
+    // This function creates a mapping from state index/name to their signal indexes.
+    // The state index may differ from its signal index as we don't generate history
+    // and invalid states, effectively skipping them
     m_stateIndexToSignalIndex.clear();
     m_stateNameToSignalIndex.clear();
 
@@ -2397,7 +2364,11 @@ void QScxmlStateMachine::stop()
 bool QScxmlStateMachine::isActive(int stateIndex) const
 {
     Q_D(const QScxmlStateMachine);
-    return d->m_configuration.contains(stateIndex);
+    // Here we need to find the actual internal state index that corresponds with the
+    // index of the compiled metaobject (which is same as its mapped signal index).
+    // See updateMetaCache()
+    const int mappedStateIndex = d->m_stateIndexToSignalIndex.key(stateIndex, -1);
+    return d->m_configuration.contains(mappedStateIndex);
 }
 
 QT_END_NAMESPACE
