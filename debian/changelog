@@ -1,3 +1,18 @@
+qt6-scxml (6.6.1-1) experimental; urgency=medium
+
+  [ Tianyu Chen ]
+  * New upstream release.
+  * Bump Qt B-Ds to 6.6.1.
+  * Update list of installed files.
+  * Update symbols from buildlogs.
+  * Move libqt6{scxml,statemachine}qml6 to corresponding QML packages.
+  * Fixed broken file references in qt6-scxml-doc-html doc-base configuration.
+  * qt6-scxml-dev should not depend on QML modules.
+  * Suppress lintian package-name-doesnt-match-sonames warnings for QML
+    modules.
+
+ -- Patrick Franz <deltaone@debian.org>  Tue, 16 Jan 2024 18:51:03 +0100
+
 qt6-scxml (6.4.2-4) unstable; urgency=medium
 
   * Team upload to unstable.

@@ -11,7 +11,7 @@
 #include <QtCore/qjsonarray.h>
 // -- QtScxml
 
-#include <ctype.h>
+#include <private/qtools_p.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -42,10 +42,12 @@ struct EnumDef
 {
     QByteArray name;
     QByteArray enumName;
+    QByteArray type;
     QList<QByteArray> values;
     bool isEnumClass; // c++11 enum class
     EnumDef() : isEnumClass(false) {}
     QJsonObject toJson(const ClassDef &cdef) const;
+    QByteArray qualifiedType(const ClassDef *cdef) const;
 };
 Q_DECLARE_TYPEINFO(EnumDef, Q_RELOCATABLE_TYPE);
 
@@ -107,8 +109,10 @@ Q_DECLARE_TYPEINFO(FunctionDef, Q_RELOCATABLE_TYPE);
 struct PropertyDef
 {
     bool stdCppSet() const {
+        if (name.isEmpty())
+            return false;
         QByteArray s("set");
-        s += toupper(name[0]);
+        s += QtMiscUtils::toAsciiUpper(name[0]);
         s += name.mid(1);
         return (s == write);
     }
@@ -121,8 +125,9 @@ struct PropertyDef
     bool constant = false;
     bool final = false;
     bool required = false;
+    int relativeIndex = -1; // property index in current metaobject
 
-    int location = -1; // token index, used for error reporting
+    qsizetype location = -1; // token index, used for error reporting
 
     QJsonObject toJson() const;
 
@@ -156,8 +161,8 @@ struct BaseDef {
     QMap<QByteArray, bool> enumDeclarations;
     QList<EnumDef> enumList;
     QMap<QByteArray, QByteArray> flagAliases;
-    int begin = 0;
-    int end = 0;
+    qsizetype begin = 0;
+    qsizetype end = 0;
 };
 
 struct ClassDef : BaseDef {
@@ -206,6 +211,8 @@ Q_DECLARE_TYPEINFO(NamespaceDef, Q_RELOCATABLE_TYPE);
 class Moc : public Parser
 {
 public:
+    enum PropertyMode { Named, Anonymous };
+
     Moc()
         : noInclude(false), mustIncludeQPluginH(false), requireCompleteTypes(false)
         {}
@@ -238,6 +245,8 @@ public:
         return index > def->begin && index < def->end - 1;
     }
 
+    void prependNamespaces(BaseDef &def, const QList<NamespaceDef> &namespaceList) const;
+
     Type parseType();
 
     bool parseEnum(EnumDef *def);
@@ -247,9 +256,11 @@ public:
 
     void parseSlots(ClassDef *def, FunctionDef::Access access);
     void parseSignals(ClassDef *def);
-    void parseProperty(ClassDef *def);
+    void parseProperty(ClassDef *def, PropertyMode mode);
     void parsePluginData(ClassDef *def);
-    void createPropertyDef(PropertyDef &def);
+
+    void createPropertyDef(PropertyDef &def, int propertyIndex, PropertyMode mode);
+
     void parsePropertyAttributes(PropertyDef &propDef);
     void parseEnumOrFlag(BaseDef *def, bool isFlag);
     void parseFlag(BaseDef *def);
@@ -262,7 +273,7 @@ public:
     void parseMocInclude();
     void parseSlotInPrivate(ClassDef *def, FunctionDef::Access access);
     QByteArray parsePropertyAccessor();
-    void parsePrivateProperty(ClassDef *def);
+    void parsePrivateProperty(ClassDef *def, PropertyMode mode);
 
     void parseFunctionArguments(FunctionDef *def);
 
@@ -280,6 +291,7 @@ public:
 
     void checkSuperClasses(ClassDef *def);
     void checkProperties(ClassDef* cdef);
+    bool testForFunctionModifiers(FunctionDef *def);
 };
 #endif // -- QtScxml
 

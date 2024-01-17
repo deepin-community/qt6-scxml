@@ -11,17 +11,15 @@ Build-Depends: cmake (>= 3.24~),
                ninja-build,
                pkg-config,
                pkg-kde-tools,
-               qml6-module-qtquick (>= 6.4.2+dfsg~),
-               qml6-module-qttest (>= 6.4.2+dfsg~),
-               qt6-base-dev (>= 6.4.2+dfsg~),
-               qt6-base-private-dev (>= 6.4.2+dfsg~),
-               qt6-declarative-dev (>= 6.4.2+dfsg~),
-               qt6-declarative-private-dev (>= 6.4.2+dfsg~),
+               qt6-base-dev (>= 6.6.1+dfsg~),
+               qt6-base-private-dev (>= 6.6.1+dfsg~),
+               qt6-declarative-dev (>= 6.6.1+dfsg~),
+               qt6-declarative-private-dev (>= 6.6.1+dfsg~),
                qt6-scxml-dev:native <cross>,
                xauth <!nocheck>,
                xvfb <!nocheck>,
-Build-Depends-Indep: qt6-base-dev (>= 6.4~) <!nodoc>,
-                     qt6-documentation-tools (>= 6.4~) <!nodoc>,
+Build-Depends-Indep: qt6-base-dev (>= 6.6~) <!nodoc>,
+                     qt6-documentation-tools (>= 6.6~) <!nodoc>,
 Standards-Version: 4.6.2
 Homepage: https://www.qt.io/developers/
 Vcs-Browser: https://salsa.debian.org/qt-kde-team/qt6/qt6-scxml
@@ -63,23 +61,6 @@ Description: Qt 6 SCXML helper binaries
  .
  This package contains the helper binary for Qt 6 SCXML.
 
-Package: libqt6scxmlqml6
-Architecture: any
-Multi-Arch: same
-Depends: ${misc:Depends}, ${shlibs:Depends},
-Description: Qt 6 SCXML QML library
- Qt is a cross-platform C++ application framework. Qt's primary feature
- is its rich set of widgets that provide standard GUI functionality.
- .
- The Qt SCXML module provides functionality to create state
- machines from SCXML files. This includes both dynamically
- creating state machines (loading the SCXML file and instantiating
- states and transitions) and generating a C++ file that has a class
- implementing the state machine. It also contains functionality
- to support data models and executable content.
- .
- This package contains the library for Qt 6 SCXML QML.
-
 Package: libqt6statemachine6
 Architecture: any
 Multi-Arch: same
@@ -96,23 +77,6 @@ Description: Qt 6 State Machine library
  to support data models and executable content.
  .
  This package contains the library for Qt 6 State Machine.
-
-Package: libqt6statemachineqml6
-Architecture: any
-Multi-Arch: same
-Depends: ${misc:Depends}, ${shlibs:Depends},
-Description: Qt 6 State Machine QML library
- Qt is a cross-platform C++ application framework. Qt's primary feature
- is its rich set of widgets that provide standard GUI functionality.
- .
- The Qt SCXML module provides functionality to create state
- machines from SCXML files. This includes both dynamically
- creating state machines (loading the SCXML file and instantiating
- states and transitions) and generating a C++ file that has a class
- implementing the state machine. It also contains functionality
- to support data models and executable content.
- .
- This package contains the library for Qt 6 State Machine QML.
 
 Package: qml6-module-qtscxml
 Architecture: any
@@ -154,9 +118,7 @@ Architecture: any
 Multi-Arch: same
 Depends: libqt6scxml6 (= ${binary:Version}),
          libqt6scxml6-bin (= ${binary:Version}),
-         libqt6scxmlqml6 (= ${binary:Version}),
          libqt6statemachine6 (= ${binary:Version}),
-         libqt6statemachineqml6 (= ${binary:Version}),
          qt6-base-dev,
          ${misc:Depends},
 Description: Qt 6 SCXML - development files

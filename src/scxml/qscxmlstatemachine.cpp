@@ -58,16 +58,21 @@ Q_LOGGING_CATEGORY(scxmlLog, "scxml.statemachine")
 */
 
 /*!
-    \fn template<typename PointerToMemberFunction> QMetaObject::Connection QScxmlStateMachine::connectToEvent(
-                                           const QString &scxmlEventSpec,
-                                           const typename QtPrivate::FunctionPointer<PointerToMemberFunction>::Object *receiver,
-                                           PointerToMemberFunction method,
-                                           Qt::ConnectionType type)
+    \fn template<typename Functor> QMetaObject::Connection QScxmlStateMachine::connectToEvent(
+            const QString &scxmlEventSpec,
+            const QObject *context,
+            Functor &&functor,
+            Qt::ConnectionType type)
+    \fn template<typename Functor> QMetaObject::Connection QScxmlStateMachine::connectToEvent(
+            const QString &scxmlEventSpec,
+            Functor &&functor,
+            Qt::ConnectionType type)
 
     Creates a connection of the given \a type from the event specified by
-    \a scxmlEventSpec to \a method in the \a receiver object.
+    \a scxmlEventSpec to \a functor, which can be a functor or a member function of
+    the optional \a context object.
 
-    The receiver's \a method must take a QScxmlEvent as a parameter.
+    The receiver's \a functor must take a QScxmlEvent as a parameter.
 
     In contrast to event specifications in SCXML documents, spaces are not
     allowed in the \a scxmlEventSpec here. In order to connect to multiple
@@ -78,87 +83,22 @@ Q_LOGGING_CATEGORY(scxmlLog, "scxml.statemachine")
 */
 
 /*!
-    \fn template<typename Functor> typename std::enable_if<!QtPrivate::FunctionPointer<Functor>::IsPointerToMemberFunction && !std::is_same<const char*, Functor>::value, QMetaObject::Connection>::type QScxmlStateMachine::connectToEvent(
-                                           const QString &scxmlEventSpec,
-                                           Functor functor,
-                                           Qt::ConnectionType type)
-
-    Creates a connection of the given \a type from the event specified by
-    \a scxmlEventSpec to \a functor.
-
-    The \a functor must take a QScxmlEvent as a parameter.
-
-    In contrast to event specifications in SCXML documents, spaces are not
-    allowed in the \a scxmlEventSpec here. In order to connect to multiple
-    events with different prefixes, connectToEvent() has to be called multiple
-    times.
-
-    Returns a handle to the connection, which can be used later to disconnect.
-*/
-
-/*!
-    \fn template<typename Functor> typename std::enable_if<!QtPrivate::FunctionPointer<Functor>::IsPointerToMemberFunction && !std::is_same<const char*, Functor>::value, QMetaObject::Connection>::type QScxmlStateMachine::connectToEvent(
-                                           const QString &scxmlEventSpec,
-                                           const QObject *context,
-                                           Functor functor,
-                                           Qt::ConnectionType type)
-
-    Creates a connection of the given \a type from the event specified by
-    \a scxmlEventSpec to \a functor using \a context as context.
-
-    The \a functor must take a QScxmlEvent as a parameter.
-
-    In contrast to event specifications in SCXML documents, spaces are not
-    allowed in the \a scxmlEventSpec here. In order to connect to multiple
-    events with different prefixes, connectToEvent() has to be called multiple
-    times.
-
-    Returns a handle to the connection, which can be used later to disconnect.
-*/
-
-/*!
-    \fn template<typename PointerToMemberFunction> QMetaObject::Connection QScxmlStateMachine::connectToState(
-                                           const QString &scxmlStateName,
-                                           const typename QtPrivate::FunctionPointer<PointerToMemberFunction>::Object *receiver,
-                                           PointerToMemberFunction method,
-                                           Qt::ConnectionType type)
+    \fn template<typename Functor> QMetaObject::Connection QScxmlStateMachine::connectToState(
+            const QString &scxmlStateName,
+            const QObject *context,
+            Functor &&functor,
+            Qt::ConnectionType type)
+    \fn template<typename Functor> QMetaObject::Connection QScxmlStateMachine::connectToState(
+            const QString &scxmlStateName,
+            Functor &&functor,
+            Qt::ConnectionType type)
 
     Creates a connection of the given \a type from the state specified by
-    \a scxmlStateName to \a method in the \a receiver object.
+    \a scxmlStateName to \a functor, which can be a functor or a member function of
+    the optional \a context object.
 
-    The receiver's \a method must take a boolean argument that indicates
+    The receiver's \a functor must take a boolean argument that indicates
     whether the state connected became active or inactive.
-
-    Returns a handle to the connection, which can be used later to disconnect.
-*/
-
-/*!
-    \fn template<typename Functor> typename std::enable_if<!QtPrivate::FunctionPointer<Functor>::IsPointerToMemberFunction && !std::is_same<const char*, Functor>::value, QMetaObject::Connection>::type QScxmlStateMachine::connectToState(
-                                           const QString &scxmlStateName,
-                                           Functor functor,
-                                           Qt::ConnectionType type)
-
-    Creates a connection of the given \a type from the state specified by
-    \a scxmlStateName to \a functor.
-
-    The \a functor must take a boolean argument that indicates whether the
-    state connected became active or inactive.
-
-    Returns a handle to the connection, which can be used later to disconnect.
-*/
-
-/*!
-    \fn template<typename Functor> typename std::enable_if<!QtPrivate::FunctionPointer<Functor>::IsPointerToMemberFunction && !std::is_same<const char*, Functor>::value, QMetaObject::Connection>::type QScxmlStateMachine::connectToState(
-                                           const QString &scxmlStateName,
-                                           const QObject *context,
-                                           Functor functor,
-                                           Qt::ConnectionType type)
-
-    Creates a connection of the given \a type from the state specified by
-    \a scxmlStateName to \a functor using \a context as context.
-
-    The \a functor must take a boolean argument that indicates whether the
-    state connected became active or inactive.
 
     Returns a handle to the connection, which can be used later to disconnect.
 */
@@ -735,7 +675,8 @@ void QScxmlStateMachinePrivate::updateMetaCache()
     m_stateIndexToSignalIndex.clear();
     m_stateNameToSignalIndex.clear();
 
-    if (!m_tableData.value())
+    const QScxmlTableData *tableData = m_tableData.valueBypassingBindings();
+    if (!tableData)
         return;
 
     if (!m_stateTable)
@@ -747,7 +688,7 @@ void QScxmlStateMachinePrivate::updateMetaCache()
         const auto &s = m_stateTable->state(i);
         if (!s.isHistoryState() && s.type != StateTable::State::Invalid) {
             m_stateIndexToSignalIndex.insert(i, signalIndex);
-            m_stateNameToSignalIndex.insert(m_tableData.value()->string(s.name),
+            m_stateNameToSignalIndex.insert(tableData->string(s.name),
                                             signalIndex + methodOffset);
 
             ++signalIndex;
@@ -1710,10 +1651,11 @@ void QScxmlStateMachine::setDataModel(QScxmlDataModel *model)
 {
     Q_D(QScxmlStateMachine);
 
-    if (d->m_dataModel.value() == nullptr && model != nullptr) {
+    if (d->m_dataModel.valueBypassingBindings() == nullptr && model != nullptr) {
         // the binding is removed only on the first valid set
-        // as the later attempts are ignored (removed when value is set below)
-        d->m_dataModel = model;
+        // as the later attempts are ignored
+        d->m_dataModel.removeBindingUnlessInWrapper();
+        d->m_dataModel.setValueBypassingBindings(model);
         model->setStateMachine(this);
         d->m_dataModel.notify();
         emit dataModelChanged(model);
@@ -1766,16 +1708,18 @@ void QScxmlStateMachine::setTableData(QScxmlTableData *tableData)
 {
     Q_D(QScxmlStateMachine);
 
-    if (d->m_tableData.value() == tableData) {
-        d->m_tableData.removeBindingUnlessInWrapper();
+    d->m_tableData.removeBindingUnlessInWrapper();
+    if (d->m_tableData.valueBypassingBindings() == tableData)
         return;
-    }
 
-    d->m_tableData = tableData;
+    d->m_tableData.setValueBypassingBindings(tableData);
     if (tableData) {
         d->m_stateTable = reinterpret_cast<const QScxmlExecutableContent::StateTable *>(
                     tableData->stateMachineTable());
-        if (objectName().isEmpty()) {
+        // cannot use objectName() here, because it creates binding loop
+        const QString currentObjectName = d->extraData
+                ? d->extraData->objectName.valueBypassingBindings() : QString();
+        if (currentObjectName.isEmpty()) {
             setObjectName(tableData->name());
         }
         if (d->m_stateTable->maxServiceId != QScxmlExecutableContent::StateTable::InvalidIndex) {

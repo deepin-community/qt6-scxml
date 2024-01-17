@@ -1,3 +1,6 @@
+# Copyright (C) 2022 The Qt Company Ltd.
+# SPDX-License-Identifier: BSD-3-Clause
+
 #####################################################################
 ## tst_scion Test:
 #####################################################################
@@ -8,7 +11,7 @@ qt_internal_add_test(tst_scion
     DEFINES
         QT_NO_CAST_FROM_ASCII
         QT_NO_CAST_TO_ASCII
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Gui
         Qt::Qml
         Qt::Scxml
@@ -118,7 +121,7 @@ foreach(f ${allscxmls})
             VERBATIM
         )
         set_source_files_properties(${out_h} ${out_cpp} PROPERTIES SKIP_AUTOMOC TRUE)
-        target_sources(tst_scion PRIVATE ${out_h} ${out_cpp})
+        qt_internal_extend_target(tst_scion SOURCES ${out_h} ${out_cpp})
     endif()
 endforeach()
 
@@ -141,8 +144,6 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/scxml/compiled_tests.h
     "${inc_list}\nstd::function<QScxmlStateMachine *()> creators[] = {\n${func_list}};")
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/scxml/scion.h
     "const char *testBases[] = {\n${test_bases}};")
-target_sources(tst_scion
-    PRIVATE
-        ${CMAKE_CURRENT_BINARY_DIR}/scxml/compiled_tests.h
-        ${CMAKE_CURRENT_BINARY_DIR}/scxml/scion.h
-)
+qt_internal_extend_target(tst_scion SOURCES
+    ${CMAKE_CURRENT_BINARY_DIR}/scxml/compiled_tests.h
+    ${CMAKE_CURRENT_BINARY_DIR}/scxml/scion.h)

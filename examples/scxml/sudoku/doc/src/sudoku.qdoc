@@ -1,13 +1,14 @@
-// Copyright (C) 2016 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
     \example sudoku
-    \title Qt SCXML Sudoku Example
+    \title SCXML Sudoku
+    \examplecategory {Data Processing & I/O}
     \ingroup examples-qtscxml
-    \brief Presents the use of SCXML in a sudoku game.
+    \meta tag {state machine}
 
-    \e {Sudoku} demonstrates how an SCXML file may be used in a game.
+    \brief Demonstrates the use of separate javascript file with SCXML.
 
     \include examples-run.qdocinc
 
