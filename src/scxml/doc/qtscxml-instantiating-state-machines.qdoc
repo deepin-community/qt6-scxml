@@ -94,6 +94,7 @@
     \code
     stateMachine->connectToState("red", [](bool active) {
         qDebug() << (active ? "entered" : "exited") << "the red state";
+    });
     \endcode
 
     And in QML:
@@ -135,7 +136,7 @@
     stateMachine->submitEvent("tap", QVariantMap({
         { "artist", "Fatboy Slim" },
         { "title", "The Rockafeller Skank" }
-    });
+    }));
     \endcode
 
     This will generate a "tap" event with the map contents available in

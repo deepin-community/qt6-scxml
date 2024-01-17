@@ -1,7 +1,14 @@
+# Copyright (C) 2022 The Qt Company Ltd.
+# SPDX-License-Identifier: BSD-3-Clause
+
+if(WASM)
+    return()
+endif()
+
 qt_internal_add_test(tst_scxmlcoutput_default
     SOURCES
         tst_scxmlcoutput.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Scxml
 )
 

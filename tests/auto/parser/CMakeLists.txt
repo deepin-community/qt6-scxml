@@ -1,3 +1,6 @@
+# Copyright (C) 2022 The Qt Company Ltd.
+# SPDX-License-Identifier: BSD-3-Clause
+
 
 #####################################################################
 ## tst_scxml_parser Test:
@@ -6,7 +9,7 @@
 qt_internal_add_test(tst_scxml_parser
     SOURCES
         tst_parser.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Gui
         Qt::Qml
         Qt::Scxml
@@ -94,6 +97,8 @@ set(tst_parser_resource_files
     "data/syntaxErrors9.scxml.errors"
     "data/test1.scxml"
     "data/test1.scxml.errors"
+    "data/emptyScript.scxml"
+    "data/emptyScript.scxml.errors"
 )
 
 qt_internal_add_resource(tst_scxml_parser "tst_parser"

@@ -1,3 +1,6 @@
+# Copyright (C) 2022 The Qt Company Ltd.
+# SPDX-License-Identifier: BSD-3-Clause
+
 #####################################################################
 ## qscxmlc Tool:
 #####################################################################
@@ -16,7 +19,7 @@ qt_internal_add_tool(${target_name}
         ../../src/scxml/qscxmltabledata.cpp ../../src/scxml/qscxmltabledata.h
         generator.cpp generator.h
         main.cpp
-        moc.h
+        moc.cpp moc.h
         outputrevision.h
         qscxmlc.cpp qscxmlc.h
         scxmlcppdumper.cpp scxmlcppdumper.h
@@ -32,6 +35,11 @@ qt_internal_add_tool(${target_name}
         Qt::CorePrivate
 )
 qt_internal_return_unless_building_tools()
+
+# qscxmlc uses header and source files from Scxml library instead of linking it. These sources use
+# includes from the module(using the module include style) so need to sync the module header
+# files first to avoid compiler errors.
+add_dependencies(${target_name} Scxml_sync_headers)
 
 set_property(SOURCE ../../src/scxml/qscxmlerror.h PROPERTY SKIP_AUTOMOC ON)
 set_property(SOURCE ../../src/scxml/qscxmlcompiler.cpp PROPERTY SKIP_AUTOMOC ON)

@@ -89,10 +89,9 @@ const QJSValue& SignalTransition::signal()
 
 void SignalTransition::setSignal(const QJSValue &signal)
 {
-    if (m_signal.value().strictlyEquals(signal)) {
-        m_signal.removeBindingUnlessInWrapper();
+    m_signal.removeBindingUnlessInWrapper();
+    if (m_signal.valueBypassingBindings().strictlyEquals(signal))
         return;
-    }
 
     QV4::ExecutionEngine *jsEngine = QQmlEngine::contextForObject(this)->engine()->handle();
     QV4::Scope scope(jsEngine);
@@ -100,7 +99,7 @@ void SignalTransition::setSignal(const QJSValue &signal)
     QObject *sender;
     QMetaMethod signalMethod;
 
-    m_signal = signal;
+    m_signal.setValueBypassingBindings(signal);
     QV4::ScopedValue value(scope, QJSValuePrivate::asReturnedValue(&signal));
 
     // Did we get the "slot" that can be used to invoke the signal?
@@ -167,7 +166,11 @@ void SignalTransition::connectTriggered()
     QV4::Scope scope(jsEngine);
     QV4::Scoped<QV4::QObjectMethod> qobjectSignal(
                 scope, QJSValuePrivate::asReturnedValue(&m_signal.value()));
-    Q_ASSERT(qobjectSignal);
+    if (!qobjectSignal) {
+        m_signalExpression.adopt(nullptr);
+        return;
+    }
+
     QMetaMethod metaMethod = target->metaObject()->method(qobjectSignal->methodIndex());
     int signalIndex = QMetaObjectPrivate::signalIndex(metaMethod);
 
