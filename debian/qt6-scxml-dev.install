@@ -138,3 +138,7 @@ usr/lib/${DEB_HOST_MULTIARCH}/qt6/modules/Scxml.json
 usr/lib/${DEB_HOST_MULTIARCH}/qt6/modules/ScxmlQml.json
 usr/lib/${DEB_HOST_MULTIARCH}/qt6/modules/StateMachine.json
 usr/lib/${DEB_HOST_MULTIARCH}/qt6/modules/StateMachineQml.json
+usr/lib/${DEB_HOST_MULTIARCH}/cmake/Qt6Scxml/Qt6ScxmlVersionlessAliasTargets.cmake
+usr/lib/${DEB_HOST_MULTIARCH}/cmake/Qt6ScxmlQml/Qt6ScxmlQmlVersionlessAliasTargets.cmake
+usr/lib/${DEB_HOST_MULTIARCH}/cmake/Qt6StateMachine/Qt6StateMachineVersionlessAliasTargets.cmake
+usr/lib/${DEB_HOST_MULTIARCH}/cmake/Qt6StateMachineQml/Qt6StateMachineQmlVersionlessAliasTargets.cmake

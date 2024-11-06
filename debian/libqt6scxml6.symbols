@@ -422,7 +422,6 @@ libQt6Scxml.so.6 libqt6scxml6 #MINVER#
  _ZNK29QScxmlInvokableServiceFactory5namesEv@Qt_6 6.6.1
  _ZNK31QScxmlStaticScxmlServiceFactory10metaObjectEv@Qt_6 6.6.1
  _ZNK32QScxmlDynamicScxmlServiceFactory10metaObjectEv@Qt_6 6.6.1
- _ZSt19piecewise_construct@Qt_6 6.6.1
  _ZTI15QScxmlDataModel@Qt_6 6.6.1
  _ZTI15QScxmlTableData@Qt_6 6.6.1
  _ZTI18QScxmlCppDataModel@Qt_6 6.6.1
