@@ -1,3 +1,9 @@
+qt6-scxml (6.8.0-0deepin) UNRELEASED; urgency=medium
+
+  * New upstream release (6.8.0).
+
+ -- lichenggang <lichenggang@deepin.org>  Wed, 06 Nov 2024 14:02:58 +0800
+
 qt6-scxml (6.6.1-1deepin0) experimental; urgency=medium
 
   * No source change upload against GCC 12.

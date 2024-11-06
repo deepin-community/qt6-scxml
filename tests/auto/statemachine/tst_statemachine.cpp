@@ -1,5 +1,5 @@
 // Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only
 
 #include <QtTest>
 #include <QtTest/private/qpropertytesthelper_p.h>
@@ -31,6 +31,7 @@ private Q_SLOTS:
 
     void doneDotStateEvent();
     void running();
+    void restart();
 
     void invokeStateMachine();
 
@@ -390,6 +391,24 @@ void tst_StateMachine::running()
 
     QCOMPARE(runningChangedSpy.size(), 2);
     QCOMPARE(stateMachine->isRunning(), false);
+}
+
+void tst_StateMachine::restart()
+{
+    QScopedPointer<QScxmlStateMachine> stateMachine(
+            QScxmlStateMachine::fromFile(QString(":/tst_statemachine/stateDotDoneEvent.scxml")));
+    QVERIFY(!stateMachine.isNull());
+
+    QSignalSpy finishedSpy(stateMachine.data(), SIGNAL(finished()));
+
+    stateMachine->start();
+    finishedSpy.wait(5000);
+    QCOMPARE(finishedSpy.size(), 1);
+    QCOMPARE(stateMachine->activeStateNames(true).size(), 1);
+    QVERIFY(stateMachine->activeStateNames(true).contains(QLatin1String("success")));
+
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression("(.*)Can't start finished machine"));
+    stateMachine->start();
 }
 
 void tst_StateMachine::invokeStateMachine()
