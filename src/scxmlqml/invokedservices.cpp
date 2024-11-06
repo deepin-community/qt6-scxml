@@ -8,7 +8,7 @@ QT_BEGIN_NAMESPACE
 
 /*!
     \qmltype InvokedServices
-//!    \instantiates QScxmlInvokedServices
+//!    \nativetype QScxmlInvokedServices
     \inqmlmodule QtScxml
     \since QtScxml 5.8
 
@@ -77,12 +77,12 @@ void QScxmlInvokedServices::setStateMachine(QScxmlStateMachine *stateMachine)
     m_stateMachine.setValueBypassingBindings(stateMachine);
 
     if (stateMachine) {
-        m_serviceConnection = QObject::connect(
-                    stateMachine, &QScxmlStateMachine::invokedServicesChanged,
-                    [this](){
-            m_children.notify();
-            emit childrenChanged();
-        });
+        m_serviceConnection =
+                QObject::connect(stateMachine,
+                                 &QScxmlStateMachine::invokedServicesChanged, this, [this]() {
+                                     m_children.notify();
+                                     emit childrenChanged();
+                                 });
     }
     m_stateMachine.notify();
     m_children.notify();

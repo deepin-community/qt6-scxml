@@ -3,12 +3,10 @@ usr/share/qt6/doc/qtscxml/examples-manifest.xml
 usr/share/qt6/doc/qtscxml/images
 usr/share/qt6/doc/qtscxml/qtscxml.index
 usr/share/qt6/doc/qtscxml/qtscxml.qhp
-usr/share/qt6/doc/qtscxml/qtscxml.qhp.sha1
 usr/share/qt6/doc/qtscxml/style
 usr/share/qt6/doc/qtstatemachine/*.html
 usr/share/qt6/doc/qtstatemachine/examples-manifest.xml
 usr/share/qt6/doc/qtstatemachine/images
 usr/share/qt6/doc/qtstatemachine/qtstatemachine.index
 usr/share/qt6/doc/qtstatemachine/qtstatemachine.qhp
-usr/share/qt6/doc/qtstatemachine/qtstatemachine.qhp.sha1
 usr/share/qt6/doc/qtstatemachine/style
