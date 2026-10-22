@@ -1,5 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:significant
 
 #include "qscxmlcppdatamodel_p.h"
 #include "qscxmlstatemachine.h"
@@ -28,15 +29,11 @@ using namespace QScxmlExecutableContent;
    The format of the \e datamodel attribute is: \c{cplusplus:<class-name>:<classdef-header>}.
    So, for the example above, there should be a file \e thedatamodel.h containing a subclass of
    QScxmlCppDataModel, containing at least the following:
-   \badcode
-#include "qscxmlcppdatamodel.h"
 
-class TheDataModel: public QScxmlCppDataModel
-{
-    \Q_OBJECT
-    Q_SCXML_DATAMODEL
-};
-   \endcode
+   \snippet snippets/mediaplayer/thedatamodel.h Declaration1
+   \dots
+   \snippet snippets/mediaplayer/thedatamodel.h Declaration2
+
    The Q_SCXML_DATAMODEL has to appear in the private section of the class definition, for example
    right after the opening bracket, or after a Q_OBJECT macro.
    This macro expands to the declaration of some virtual

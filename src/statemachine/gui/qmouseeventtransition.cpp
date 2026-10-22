@@ -1,5 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:significant
 
 #include "qmouseeventtransition.h"
 #include "qbasicmouseeventtransition_p.h"
@@ -144,7 +145,7 @@ QPainterPath QMouseEventTransition::hitTestPath() const
 /*!
   Sets the hit test path for this mouse event transition to \a path.
   If a valid path has been set, the transition will only trigger if the mouse
-  event position (QMouseEvent::pos()) is inside the path.
+  event position (QMouseEvent::position()) is inside the path.
 
   \sa QPainterPath::contains()
 */

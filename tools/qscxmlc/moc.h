@@ -5,10 +5,11 @@
 #define MOC_H
 
 // -- QtScxml
+#include <QtCore/qjsonarray.h>
+#include <QtCore/qjsondocument.h>
 #include <QtCore/qmap.h>
 #include <QtCore/qpair.h>
-#include <QtCore/qjsondocument.h>
-#include <QtCore/qjsonarray.h>
+#include <QtCore/qtmocconstants.h>
 // -- QtScxml
 
 #include <private/qtools_p.h>
@@ -16,6 +17,15 @@
 QT_BEGIN_NAMESPACE
 
 struct QMetaObject;
+
+enum class TypeTag : uchar {
+    None,
+    HasStruct = 0x01,
+    HasClass = 0x02,
+    HasEnum = 0x04,
+};
+Q_DECLARE_FLAGS(TypeTags, TypeTag)
+Q_DECLARE_OPERATORS_FOR_FLAGS(TypeTags)
 
 struct Type
 {
@@ -30,6 +40,7 @@ struct Type
     QByteArray rawName;
     uint isVolatile : 1;
     uint isScoped : 1;
+    TypeTags typeTag;
 #if 0 // -- QtScxml
     Token firstToken;
 #endif // -- QtScxml
@@ -44,10 +55,10 @@ struct EnumDef
     QByteArray enumName;
     QByteArray type;
     QList<QByteArray> values;
-    bool isEnumClass; // c++11 enum class
-    EnumDef() : isEnumClass(false) {}
+    QFlags<QtMocConstants::EnumFlags> flags = {};
     QJsonObject toJson(const ClassDef &cdef) const;
     QByteArray qualifiedType(const ClassDef *cdef) const;
+    int lineNumber = 0;
 };
 Q_DECLARE_TYPEINFO(EnumDef, Q_RELOCATABLE_TYPE);
 
@@ -56,7 +67,6 @@ struct ArgumentDef
     ArgumentDef() : isDefault(false) {}
     Type type;
     QByteArray rightType, normalizedType, name;
-    QByteArray typeNameForCast; // type name to be used in cast from void * in metacall
     bool isDefault;
 
     QJsonObject toJson() const;
@@ -75,6 +85,7 @@ struct FunctionDef
     enum Access { Private, Protected, Public };
     Access access = Private;
     int revision = 0;
+    int lineNumber = 0;
 
     bool isConst = false;
     bool isVirtual = false;
@@ -96,7 +107,7 @@ struct FunctionDef
     bool isAbstract = false;
     bool isRawSlot = false;
 
-    QJsonObject toJson() const;
+    QJsonObject toJson(int index) const;
     static void accessToJson(QJsonObject *obj, Access acs);
 
 // -- QtScxml
@@ -122,10 +133,14 @@ struct PropertyDef
     enum Specification  { ValueSpec, ReferenceSpec, PointerSpec };
     Specification gspec = ValueSpec;
     int revision = 0;
+    TypeTags typeTag;
     bool constant = false;
     bool final = false;
+    bool virtual_ = false;
+    bool override = false;
     bool required = false;
     int relativeIndex = -1; // property index in current metaobject
+    int lineNumber = 0;
 
     qsizetype location = -1; // token index, used for error reporting
 
@@ -158,7 +173,7 @@ struct BaseDef {
     QByteArray classname;
     QByteArray qualified;
     QList<ClassInfoDef> classInfoList;
-    QMap<QByteArray, bool> enumDeclarations;
+    QMap<QByteArray, QFlags<QtMocConstants::EnumFlags>> enumDeclarations;
     QList<EnumDef> enumList;
     QMap<QByteArray, QByteArray> flagAliases;
     qsizetype begin = 0;
@@ -197,12 +212,14 @@ struct ClassDef : BaseDef {
     QList<FunctionDef> signalList, slotList, methodList, publicList;
     QList<QByteArray> nonClassSignalList;
     QList<PropertyDef> propertyList;
+    QSet<QByteArray> allEnumNames;
     int revisionedMethods = 0;
 
     bool hasQObject = false;
     bool hasQGadget = false;
     bool hasQNamespace = false;
     bool requireCompleteMethodTypes = false;
+    bool isFinal = false;
 
     QJsonObject toJson() const;
 };
@@ -242,6 +259,7 @@ public:
     QList<QString> parsedPluginMetadataFiles;
 
     void parse();
+    QByteArrayView strippedFileName() const;
     void generate(FILE *out, FILE *jsonOutput);
 
     bool parseClassHead(ClassDef *def);
@@ -259,7 +277,7 @@ public:
 
     Type parseType();
 
-    bool parseEnum(EnumDef *def);
+    bool parseEnum(EnumDef *def, ClassDef *containingClass);
 
     bool parseFunction(FunctionDef *def, bool inMacro = false);
     bool parseMaybeFunction(const ClassDef *cdef, FunctionDef *def);
@@ -272,7 +290,7 @@ public:
     void createPropertyDef(PropertyDef &def, int propertyIndex, PropertyMode mode);
 
     void parsePropertyAttributes(PropertyDef &propDef);
-    void parseEnumOrFlag(BaseDef *def, bool isFlag);
+    void parseEnumOrFlag(BaseDef *def, QtMocConstants::EnumFlags flags);
     void parseFlag(BaseDef *def);
     enum class EncounteredQmlMacro {Yes, No};
     EncounteredQmlMacro parseClassInfo(BaseDef *def);
@@ -290,7 +308,7 @@ public:
     QByteArray lexemUntil(Token);
     bool until(Token);
 
-    // test for Q_INVOCABLE, Q_SCRIPTABLE, etc. and set the flags
+    // test for Q_INVOKABLE, Q_SCRIPTABLE, etc. and set the flags
     // in FunctionDef accordingly
     bool testFunctionAttribute(FunctionDef *def);
     bool testFunctionAttribute(Token tok, FunctionDef *def);

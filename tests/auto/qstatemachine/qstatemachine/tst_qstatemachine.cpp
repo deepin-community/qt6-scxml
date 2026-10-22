@@ -17,10 +17,8 @@
 #include "qstate.h"
 #include "qhistorystate.h"
 #include "qsignaltransition.h"
-#if QT_CONFIG(qeventtransition)
 #include "qkeyeventtransition.h"
 #include "qmouseeventtransition.h"
-#endif
 #include "private/qstate_p.h"
 #include "private/qstatemachine_p.h"
 
@@ -72,6 +70,17 @@ static int globalTick;
         active = !active; \
     } \
     QCOMPARE(VAR->active(), !active); \
+}
+
+#define TEST_ACTIVE_CHANGED_SPY_ONLY(VAR, COUNT) \
+{ \
+    QTRY_COMPARE(VAR##_activeSpy.count(), COUNT); \
+    bool active = true; \
+    for (const QList<QVariant> &activeArgs : static_cast<QList<QList<QVariant> > >(VAR##_activeSpy)) { \
+        QVERIFY(activeArgs.at(0).typeId() == QMetaType::Bool); \
+        QVERIFY(activeArgs.at(0).toBool() == active); \
+        active = !active; \
+    } \
 }
 
 class SignalEmitter : public QObject
@@ -237,6 +246,7 @@ private slots:
     void postDelayedEventWithChronoAndStop();
     void postDelayedEventWithChronoFromThread();
     void bindings();
+    void severalStateMachinesInParallelState();
 };
 
 class TestState : public QState
@@ -6105,8 +6115,8 @@ void tst_QStateMachine::signalTransitionSenderInDifferentThread2()
 
     thread.quit();
     QTRY_VERIFY(thread.wait());
-    TEST_ACTIVE_CHANGED(s1, 2);
-    TEST_ACTIVE_CHANGED(s2, 2);
+    TEST_ACTIVE_CHANGED_SPY_ONLY(s1, 2);
+    TEST_ACTIVE_CHANGED_SPY_ONLY(s2, 2);
 }
 
 class SignalTransitionMutatorThread : public QThread
@@ -7048,6 +7058,51 @@ void tst_QStateMachine::bindings()
         qWarning() << "QMouseEventTransition::modifierMask bindable test failed.";
         return;
     }
+}
+
+static QStateMachine *createChild(QState *parent)
+{
+    QStateMachine *fsm = new QStateMachine(parent);
+    QState *s1 = new QState();
+    QFinalState *s2 = new QFinalState();
+    fsm->addState(s1);
+    fsm->addState(s2);
+    fsm->setInitialState(s1);
+    s1->addTransition(s2);
+    return fsm;
+}
+
+void tst_QStateMachine::severalStateMachinesInParallelState()
+{
+    QStateMachine machine;
+    QState *s1 = new QState(QState::ParallelStates);
+    QFinalState *s2 = new QFinalState();
+
+    machine.addState(s1);
+    machine.addState(s2);
+    machine.setInitialState(s1);
+    s1->addTransition(s1, &QState::finished, s2);
+
+    QStateMachine *child1 = createChild(s1);
+    QStateMachine *child2 = createChild(s1);
+
+    QSignalSpy finishedSpy(&machine, &QStateMachine::finished);
+    QSignalSpy child1Spy(child1, &QStateMachine::finished);
+    QSignalSpy child2Spy(child2, &QStateMachine::stopped);
+    QSignalSpy runningSpy(&machine, &QStateMachine::runningChanged);
+
+    QVERIFY(child1Spy.isValid());
+    QVERIFY(child2Spy.isValid());
+    QVERIFY(finishedSpy.isValid());
+    QVERIFY(runningSpy.isValid());
+
+    machine.start();
+
+    QTRY_COMPARE(finishedSpy.size(), 1);
+    TEST_RUNNING_CHANGED_STARTED_STOPPED;
+    QTRY_COMPARE(child1Spy.size(), 1);
+    QTRY_COMPARE(child2Spy.size(), 1);
+
 }
 
 QTEST_MAIN(tst_QStateMachine)

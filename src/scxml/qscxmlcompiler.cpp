@@ -1,5 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:scritical reason:data-parser
 
 #include "qscxmlcompiler_p.h"
 #include "qscxmlexecutablecontent_p.h"
@@ -24,6 +25,8 @@
 
 #include <functional>
 
+using namespace Qt::StringLiterals;
+
 namespace {
 enum {
     DebugHelper_NameTransitions = 0
@@ -40,7 +43,7 @@ namespace {
 class ScxmlVerifier: public DocumentModel::NodeVisitor
 {
 public:
-    ScxmlVerifier(std::function<void (const DocumentModel::XmlLocation &, const QString &)> errorHandler)
+    ScxmlVerifier(std::function<void (const QString &, const DocumentModel::XmlLocation &, const QString &)> errorHandler)
         : m_errorHandler(errorHandler)
         , m_doc(nullptr)
         , m_hasErrors(false)
@@ -368,7 +371,6 @@ private:
     {
         const auto &allChildren = allChildrenOfContainer(container);
 
-        QList<DocumentModel::AbstractState *> childStates;
         for (DocumentModel::StateOrTransition *child : std::as_const(allChildren)) {
             if (DocumentModel::State *s = child->asState())
                 return s;
@@ -418,11 +420,11 @@ private:
     {
         m_hasErrors = true;
         if (m_errorHandler)
-            m_errorHandler(location, message);
+            m_errorHandler(m_doc->fileName, location, message);
     }
 
 private:
-    std::function<void (const DocumentModel::XmlLocation &, const QString &)> m_errorHandler;
+    std::function<void (const QString &, const DocumentModel::XmlLocation &, const QString &)> m_errorHandler;
     DocumentModel::ScxmlDocument *m_doc;
     bool m_hasErrors;
     QHash<QString, DocumentModel::AbstractState *> m_stateById;
@@ -453,7 +455,11 @@ class DynamicStateMachinePrivate : public QScxmlStateMachinePrivate
 {
     struct DynamicMetaObject : public QAbstractDynamicMetaObject
     {
+#if QT_VERSION >= QT_VERSION_CHECK(7, 0, 0)
+        const QMetaObject *toDynamicMetaObject(QObject *) const override
+#else
         QMetaObject *toDynamicMetaObject(QObject *) override
+#endif
         {
             return this;
         }
@@ -1317,8 +1323,8 @@ bool QScxmlCompilerPrivate::verifyDocument()
     if (!m_doc)
         return false;
 
-    auto handler = [this](const DocumentModel::XmlLocation &location, const QString &msg) {
-        this->addError(location, msg);
+    auto handler = [this](const QString &fileName, const DocumentModel::XmlLocation &location, const QString &msg) {
+        this->addError(fileName, location, msg);
     };
 
     if (ScxmlVerifier(handler).verify(m_doc.get()))
@@ -1516,7 +1522,7 @@ bool QScxmlCompilerPrivate::preReadElementTransition()
     transition->events = attributes.value(QLatin1String("event")).toString().split(QLatin1Char(' '), Qt::SkipEmptyParts);
     transition->targets = attributes.value(QLatin1String("target")).toString().split(QLatin1Char(' '), Qt::SkipEmptyParts);
     if (attributes.hasAttribute(QStringLiteral("cond")))
-        transition->condition.reset(new QString(attributes.value(QLatin1String("cond")).toString()));
+        transition->condition = QString(attributes.value("cond"_L1).toString());
     QStringView type = attributes.value(QLatin1String("type"));
     if (type.isEmpty() || type == QLatin1String("external")) {
         transition->type = DocumentModel::Transition::External;
@@ -2049,7 +2055,7 @@ bool QScxmlCompilerPrivate::postReadElementScript()
             }
         }
     } else {
-        addError(scriptI->xmlLocation,
+        addError(m_doc->fileName, scriptI->xmlLocation,
                 QStringLiteral("neither src nor any content has been given in the script tag"));
     }
     return flushInstruction();
@@ -2310,7 +2316,7 @@ QByteArray QScxmlCompilerPrivate::load(const QString &name, bool *ok)
     QStringList errs;
     const QByteArray result = m_loader->load(name, m_fileName.isEmpty() ?
                               QString() : QFileInfo(m_fileName).path(), &errs);
-    for (const QString &err : errs)
+    for (const QString &err : std::as_const(errs))
         addError(err);
 
     *ok = errs.isEmpty();
@@ -2328,9 +2334,9 @@ void QScxmlCompilerPrivate::addError(const QString &msg)
     m_errors.append(QScxmlError(m_fileName, m_reader->lineNumber(), m_reader->columnNumber(), msg));
 }
 
-void QScxmlCompilerPrivate::addError(const DocumentModel::XmlLocation &location, const QString &msg)
+void QScxmlCompilerPrivate::addError(const QString &fileName, const DocumentModel::XmlLocation &location, const QString &msg)
 {
-    m_errors.append(QScxmlError(m_fileName, location.line, location.column, msg));
+    m_errors.append(QScxmlError(fileName, location.line, location.column, msg));
 }
 
 DocumentModel::AbstractState *QScxmlCompilerPrivate::currentParent() const
@@ -2349,7 +2355,7 @@ bool QScxmlCompilerPrivate::maybeId(const QXmlStreamAttributes &attributes, QStr
     QString idStr = attributes.value(QLatin1String("id")).toString();
     if (!idStr.isEmpty()) {
         if (m_allIds.contains(idStr)) {
-            addError(xmlLocation(), QStringLiteral("duplicate id '%1'").arg(idStr));
+            addError(m_doc->fileName, xmlLocation(), QStringLiteral("duplicate id '%1'").arg(idStr));
         } else {
             m_allIds.insert(idStr);
             *id = idStr;

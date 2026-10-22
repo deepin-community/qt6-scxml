@@ -1,5 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:significant
 
 #ifndef QSIGNALEVENTGENERATOR_P_H
 #define QSIGNALEVENTGENERATOR_P_H
@@ -18,7 +19,7 @@
 #include <QtCore/private/qglobal_p.h>
 #include <QtCore/qobject.h>
 
-#include <QtStateMachine/qstatemachineglobal.h>
+#include <private/qstatemachineglobal_p.h>
 
 QT_REQUIRE_CONFIG(statemachine);
 

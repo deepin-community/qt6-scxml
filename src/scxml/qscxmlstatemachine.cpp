@@ -1,5 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:significant
 
 #include "qscxmlstatemachine_p.h"
 #include "qscxmlexecutablecontent_p.h"
@@ -313,8 +314,10 @@ QMetaObject::Connection ScxmlEventRouter::connectToEvent(const QStringList &segm
     QString segment = nextSegment(segments);
     if (segment.isEmpty()) {
         const int *types = nullptr;
-        if (type == Qt::QueuedConnection || type == Qt::BlockingQueuedConnection)
-            types = QtPrivate::ConnectionTypes<QtPrivate::List<QScxmlEvent> >::types();
+        if (type == Qt::QueuedConnection || type == Qt::BlockingQueuedConnection) {
+            static const int eventTypeId[] = { qMetaTypeId<QScxmlEvent>(), 0 };
+            types = eventTypeId;
+        }
 
         const QMetaObject *meta = metaObject();
         static const int eventOccurredIndex = signalIndex(meta, "eventOccurred(QScxmlEvent)");
@@ -452,39 +455,8 @@ void QScxmlStateMachinePrivate::postEvent(QScxmlEvent *event)
 {
     Q_Q(QScxmlStateMachine);
 
-    if (!event->name().startsWith(QStringLiteral("done.invoke."))) {
-        for (int id = 0, end = static_cast<int>(m_invokedServices.size()); id != end; ++id) {
-            auto service = m_invokedServices[id].service;
-            if (service == nullptr)
-                continue;
-            auto factory = serviceFactory(id);
-            if (event->invokeId() == service->id()) {
-                setEvent(event);
-
-                const QScxmlExecutableContent::ContainerId finalize
-                        = factory->invokeInfo().finalize;
-                if (finalize != QScxmlExecutableContent::NoContainer) {
-                    auto psm = service->parentStateMachine();
-                    qCDebug(qscxmlLog) << psm << "running finalize on event";
-                    auto smp = QScxmlStateMachinePrivate::get(psm);
-                    smp->m_executionEngine->execute(finalize);
-                }
-
-                resetEvent();
-            }
-            if (factory->invokeInfo().autoforward) {
-                qCDebug(qscxmlLog) << q << "auto-forwarding event" << event->name()
-                                   << "from" << q->name()
-                                   << "to child" << service->id();
-                service->postEvent(new QScxmlEvent(*event));
-            }
-        }
-    }
-
-    if (event->eventType() == QScxmlEvent::ExternalEvent)
-        m_router.route(event->name().split(QLatin1Char('.')), event);
-
     if (event->eventType() == QScxmlEvent::ExternalEvent) {
+        m_router.route(event->name().split(QLatin1Char('.')), event);
         qCDebug(qscxmlLog) << q << "posting external event" << event->name();
         m_externalQueue.enqueue(event);
     } else {
@@ -516,11 +488,17 @@ void QScxmlStateMachinePrivate::submitDelayedEvent(QScxmlEvent *event)
 }
 
 /*!
+    \class QScxmlStateMachinePrivate
+    \inmodule QtScxml
+    \internal
+*/
+
+/*!
  * Submits an error event to the external event queue of this state machine.
  *
  * The type of the error is specified by \a type. The value of type has to begin
  * with the string \e error. For example \c {error.execution}. The message,
- * \a message, decribes the error and is passed to the event as the
+ * \a message, describes the error and is passed to the event as the
  * \c errorMessage property. The \a sendId of the message causing the error is specified, if it has
  * one.
  */
@@ -595,6 +573,32 @@ void QScxmlStateMachinePrivate::processEvents()
         } else if (!m_externalQueue.isEmpty()) {
             auto event = m_externalQueue.dequeue();
             setEvent(event);
+
+            for (int id = 0, end = static_cast<int>(m_invokedServices.size()); id != end; ++id) {
+                auto service = m_invokedServices[id].service;
+                if (service == nullptr)
+                    continue;
+                auto factory = serviceFactory(id);
+                if (event->invokeId() == service->id()) {
+                    const QScxmlExecutableContent::ContainerId finalize
+                            = factory->invokeInfo().finalize;
+                    if (finalize != QScxmlExecutableContent::NoContainer) {
+                        auto psm = service->parentStateMachine();
+                        qCDebug(qscxmlLog) << psm << "running finalize on event";
+                        auto smp = QScxmlStateMachinePrivate::get(psm);
+                        smp->m_executionEngine->execute(finalize);
+                    }
+
+                }
+
+                if (factory->invokeInfo().autoforward) {
+                    qCDebug(qscxmlLog) << q << "auto-forwarding event" << event->name()
+                                        << "from" << q->name()
+                                        << "to child" << service->id();
+                    service->postEvent(new QScxmlEvent(*event));
+                }
+            }
+
             selectTransitions(enabledTransitions, configurationInDocumentOrder, event);
             if (!enabledTransitions.isEmpty()) {
                 microstep(enabledTransitions);
@@ -608,7 +612,7 @@ void QScxmlStateMachinePrivate::processEvents()
     }
 
     if (!m_statesToInvoke.empty()) {
-        for (int stateId : m_statesToInvoke)
+        for (int stateId : std::as_const(m_statesToInvoke))
             addService(stateId);
         m_statesToInvoke.clear();
     }
@@ -1143,9 +1147,9 @@ void QScxmlStateMachinePrivate::addDescendantStatesToEnter(
 
     const auto &state = m_stateTable->state(stateIndex);
     if (state.isHistoryState()) {
-        HistoryValues::const_iterator historyValueIter = m_historyValue.find(stateIndex);
-        if (historyValueIter != m_historyValue.end()) {
-            auto historyValue = historyValueIter.value();
+        HistoryValues::const_iterator historyValueIter = m_historyValue.constFind(stateIndex);
+        if (historyValueIter != m_historyValue.constEnd()) {
+            const QList<int> historyValue = historyValueIter.value();
             for (int s : historyValue)
                 addDescendantStatesToEnter(s, statesToEnter, statesForDefaultEntry,
                                            defaultHistoryContent);
@@ -1750,7 +1754,7 @@ QBindable<QScxmlTableData*> QScxmlStateMachine::bindableTableData()
 }
 
 /*!
-    \qmlmethod ScxmlStateMachine::stateNames(bool compress)
+    \qmlmethod list<string> ScxmlStateMachine::stateNames(bool compress)
 
     Retrieves a list of state names of all states.
 
@@ -1791,7 +1795,7 @@ QStringList QScxmlStateMachine::stateNames(bool compress) const
 }
 
 /*!
-    \qmlmethod ScxmlStateMachine::activeStateNames(bool compress)
+    \qmlmethod list<string> ScxmlStateMachine::activeStateNames(bool compress)
 
     Retrieves a list of state names of all active states.
 
@@ -1822,7 +1826,7 @@ QStringList QScxmlStateMachine::activeStateNames(bool compress) const
 }
 
 /*!
-    \qmlmethod ScxmlStateMachine::isActive(string scxmlStateName)
+    \qmlmethod bool ScxmlStateMachine::isActive(string scxmlStateName)
 
     Returns \c true if the state specified by \a scxmlStateName is active,
     \c false otherwise.
@@ -1849,9 +1853,8 @@ QMetaObject::Connection QScxmlStateMachine::connectToStateImpl(const QString &sc
                                                                QtPrivate::QSlotObjectBase *slotObj,
                                                                Qt::ConnectionType type)
 {
-    const int *types = nullptr;
-    if (type == Qt::QueuedConnection || type == Qt::BlockingQueuedConnection)
-        types = QtPrivate::ConnectionTypes<QtPrivate::List<bool> >::types();
+    static const int metaTypeIds[] = { QMetaType::Bool, 0 };
+    const int *types = metaTypeIds;
 
     Q_D(QScxmlStateMachine);
     const int signalIndex = d->m_stateNameToSignalIndex.value(scxmlStateName, -1);
@@ -1919,7 +1922,7 @@ QMetaObject::Connection QScxmlStateMachine::connectToEventImpl(const QString &sc
 }
 
 /*!
-    \qmlmethod ScxmlStateMachine::init()
+    \qmlmethod bool ScxmlStateMachine::init()
 
     Initializes the state machine by setting the initial values for \c <data>
     elements and executing any \c <script> tags of the \c <scxml> tag. The
@@ -2008,7 +2011,7 @@ QString QScxmlStateMachine::name() const
 }
 
 /*!
-    \qmlmethod ScxmlStateMachine::submitEvent(event)
+    \qmlmethod void ScxmlStateMachine::submitEvent(event)
 
     Submits the SCXML event \a event to the internal or external event queue
     depending on the priority of the event.
@@ -2061,7 +2064,7 @@ void QScxmlStateMachine::submitEvent(const QString &eventName)
     submitEvent(e);
 }
 /*!
-    \qmlmethod ScxmlStateMachine::submitEvent(string eventName, var data)
+    \qmlmethod void ScxmlStateMachine::submitEvent(string eventName, var data)
 
     A utility method to create and submit an external event with the specified
     \a eventName as the name and \a data as the payload data (optional).
@@ -2081,7 +2084,7 @@ void QScxmlStateMachine::submitEvent(const QString &eventName, const QVariant &d
 }
 
 /*!
-    \qmlmethod ScxmlStateMachine::cancelDelayedEvent(string sendId)
+    \qmlmethod void ScxmlStateMachine::cancelDelayedEvent(string sendId)
 
     Cancels a delayed event with the specified \a sendId.
 */
@@ -2107,7 +2110,7 @@ void QScxmlStateMachine::cancelDelayedEvent(const QString &sendId)
 }
 
 /*!
-    \qmlmethod ScxmlStateMachine::isDispatchableTarget(string target)
+    \qmlmethod bool ScxmlStateMachine::isDispatchableTarget(string target)
 
     Returns \c true if a message to \a target can be dispatched by this state
     machine.
@@ -2149,7 +2152,7 @@ bool QScxmlStateMachine::isDispatchableTarget(const QString &target) const
 
     if (target.startsWith(QStringLiteral("#_"))) {
         QStringView targetId = QStringView{target}.mid(2);
-        for (auto invokedService : d->m_invokedServices) {
+        for (const auto &invokedService : d->m_invokedServices) {
             if (invokedService.service && invokedService.service->id() == targetId)
                 return true;
         }
@@ -2242,7 +2245,7 @@ QBindable<QList<QScxmlInvokableService*>> QScxmlStateMachine::bindableInvokedSer
 */
 
 /*!
-    \qmlmethod ScxmlStateMachine::start()
+    \qmlmethod void ScxmlStateMachine::start()
 
     Starts this state machine. The machine resets its configuration and
     transitions to the initial state. When a final top-level state
@@ -2286,7 +2289,7 @@ void QScxmlStateMachine::start()
 }
 
 /*!
-    \qmlmethod ScxmlStateMachine::stop()
+    \qmlmethod void ScxmlStateMachine::stop()
 
     Stops this state machine. The machine will not execute any further state
     transitions. Its \l running property is set to \c false.
