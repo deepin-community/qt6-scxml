@@ -1,5 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:significant
 
 #include "qscxmltabledata_p.h"
 #include "qscxmlcompiler_p.h"
@@ -358,7 +359,7 @@ protected: // visitor
         if (transition->condition) {
             newTransition.condition = createEvaluatorBool(QStringLiteral("transition"),
                                                           QStringLiteral("cond"),
-                                                          *transition->condition.data());
+                                                          *transition->condition);
         }
 
         switch (transition->type) {

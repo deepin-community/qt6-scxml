@@ -17,17 +17,17 @@ QT_BEGIN_NAMESPACE
 class Generator
 {
     QIODevice &out; // -- QtScxml
-    ClassDef *cdef;
+    const ClassDef *cdef;
     QList<uint> meta_data;
 
 public:
-    Generator(ClassDef *classDef, const QList<QByteArray> &metaTypes,
+    Generator(const ClassDef *classDef, const QList<QByteArray> &metaTypes,
               const QHash<QByteArray, QByteArray> &knownQObjectClasses,
               const QHash<QByteArray, QByteArray> &knownGadgets,
               QIODevice &outfile, // -- QtScxml
               bool requireCompleteTypes = false);
     void generateCode();
-    qsizetype registeredStringsCount() { return strings.size(); };
+    qsizetype registeredStringsCount() { return strings.size(); }
 
 // -- QtScxml
     void generateAccessorDefs();
@@ -37,24 +37,25 @@ public:
 private:
     bool registerableMetaType(const QByteArray &propertyType);
     void registerClassInfoStrings();
-    void generateClassInfos();
     void registerFunctionStrings(const QList<FunctionDef> &list);
     void registerByteArrayVector(const QList<QByteArray> &list);
-    void generateFunctions(const QList<FunctionDef> &list, const char *functype, int type,
-                           int &paramsIndex, int &initialMetatypeOffset);
-    void generateFunctionRevisions(const QList<FunctionDef> &list, const char *functype);
-    void generateFunctionParameters(const QList<FunctionDef> &list, const char *functype);
+    void addStrings(const QByteArrayList &strings);
+    void addProperties();
+    void addEnums();
+    void addFunctions(const QList<FunctionDef> &list, const char *functype);
+    void addClassInfos();
     void generateTypeInfo(const QByteArray &typeName, bool allowEmptyName = false);
     void registerEnumStrings();
-    void generateEnums(int index);
     void registerPropertyStrings();
-    void generateProperties();
     void generateMetacall();
     void generateStaticMetacall();
     void generateSignal(const FunctionDef *def, int index);
 #if 0 // -- QtScxml
     void generatePluginMetaData();
 #endif // -- QtScxml
+    QByteArray disambiguatedTypeName(const QByteArray &name);
+    QByteArray disambiguatedTypeName(const QByteArray &name, TypeTags tag);
+    QByteArray disambiguatedTypeNameForCast(const QByteArray &name);
     QMultiMap<QByteArray, int> automaticPropertyMetaTypesHelper();
     QMap<int, QMultiMap<QByteArray, int>>
     methodsWithAutomaticTypesHelper(const QList<FunctionDef> &methodList);

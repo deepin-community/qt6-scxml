@@ -1,5 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:significant
 
 #ifndef QSTATEMACHINE_H
 #define QSTATEMACHINE_H
@@ -15,8 +16,6 @@
 #if __has_include(<chrono>)
 #    include <chrono>
 #endif
-
-QT_REQUIRE_CONFIG(statemachine);
 
 QT_BEGIN_NAMESPACE
 
@@ -114,9 +113,7 @@ public:
 
     QSet<QAbstractState*> configuration() const;
 
-#if QT_CONFIG(qeventtransition)
     bool eventFilter(QObject *watched, QEvent *event) override;
-#endif
 
 #if __has_include(<chrono>) || defined(Q_QDOC)
     int postDelayedEvent(QEvent *event, std::chrono::milliseconds delay)

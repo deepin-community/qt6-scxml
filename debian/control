@@ -1,35 +1,36 @@
 Source: qt6-scxml
 Section: libs
-Priority: optional
 Maintainer: Debian Qt/KDE Maintainers <debian-qt-kde@lists.debian.org>
-Uploaders: Patrick Franz <deltaone@debian.org>, Lu YaNing <dluyaning@gmail.com>,
-Build-Depends: cmake (>= 3.24~),
-               debhelper-compat (= 13),
+Uploaders: Patrick Franz <deltaone@debian.org>,
+Build-Depends: debhelper-compat (= 13),
+               dh-sequence-pkgkde-symbolshelper,
+               dh-sequence-qmldeps,
+               cmake (>= 3.24~),
                libgl-dev,
                libssl-dev,
                libvulkan-dev [linux-any],
                ninja-build,
-               pkg-config,
                pkg-kde-tools,
-               qt6-base-dev (>= 6.8.0+dfsg~),
-               qt6-base-private-dev (>= 6.8.0+dfsg~),
-               qt6-declarative-dev (>= 6.8.0+dfsg~),
-               qt6-declarative-private-dev (>= 6.8.0+dfsg~),
+               pkgconf,
+               qt6-base-dev (>= 6.11.2+dfsg~),
+               qt6-base-private-dev (>= 6.11.2+dfsg~),
+               qt6-declarative-dev (>= 6.11.2+dfsg~),
+               qt6-declarative-private-dev (>= 6.11.2+dfsg~),
                qt6-scxml-dev:native <cross>,
                xauth <!nocheck>,
                xvfb <!nocheck>,
-Build-Depends-Indep: qt6-base-dev (>= 6.8~) <!nodoc>,
-                     qt6-documentation-tools (>= 6.8~) <!nodoc>,
-Standards-Version: 4.6.2
+Build-Depends-Indep: qt6-base-dev (>= 6.11~) <!nodoc>,
+                     qt6-documentation-tools (>= 6.11~) <!nodoc>,
+Standards-Version: 4.7.4
 Homepage: https://www.qt.io/developers/
 Vcs-Browser: https://salsa.debian.org/qt-kde-team/qt6/qt6-scxml
 Vcs-Git: https://salsa.debian.org/qt-kde-team/qt6/qt6-scxml.git
-Rules-Requires-Root: no
 
 Package: libqt6scxml6
 Architecture: any
 Multi-Arch: same
-Depends: ${misc:Depends}, ${shlibs:Depends},
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
 Description: Qt 6 SCXML library
  Qt is a cross-platform C++ application framework. Qt's primary feature
  is its rich set of widgets that provide standard GUI functionality.
@@ -47,7 +48,9 @@ Package: libqt6scxml6-bin
 Architecture: any
 Section: utils
 Multi-Arch: foreign
-Depends: libqt6scxml6 (= ${binary:Version}), ${misc:Depends}, ${shlibs:Depends},
+Depends: libqt6scxml6 (= ${binary:Version}),
+         ${misc:Depends},
+         ${shlibs:Depends},
 Description: Qt 6 SCXML helper binaries
  Qt is a cross-platform C++ application framework. Qt's primary feature
  is its rich set of widgets that provide standard GUI functionality.
@@ -64,7 +67,8 @@ Description: Qt 6 SCXML helper binaries
 Package: libqt6statemachine6
 Architecture: any
 Multi-Arch: same
-Depends: ${misc:Depends}, ${shlibs:Depends},
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
 Description: Qt 6 State Machine library
  Qt is a cross-platform C++ application framework. Qt's primary feature
  is its rich set of widgets that provide standard GUI functionality.
@@ -81,7 +85,11 @@ Description: Qt 6 State Machine library
 Package: qml6-module-qtscxml
 Architecture: any
 Multi-Arch: same
-Depends: ${misc:Depends}, ${shlibs:Depends},
+Depends: ${misc:Depends},
+         ${qml6:Depends},
+         ${shlibs:Depends},
+Breaks: libqt6scxmlqml6
+Replaces: libqt6scxmlqml6
 Description: Qt 6 SCXML QML module
  Qt is a cross-platform C++ application framework. Qt's primary feature
  is its rich set of widgets that provide standard GUI functionality.
@@ -98,7 +106,11 @@ Description: Qt 6 SCXML QML module
 Package: qml6-module-qtqml-statemachine
 Architecture: any
 Multi-Arch: same
-Depends: ${misc:Depends}, ${shlibs:Depends},
+Depends: ${misc:Depends},
+         ${qml6:Depends},
+         ${shlibs:Depends},
+Breaks: libqt6statemachineqml6
+Replaces: libqt6statemachineqml6
 Description: Qt 6 Qt QML State Machine module
  Qt is a cross-platform C++ application framework. Qt's primary feature
  is its rich set of widgets that provide standard GUI functionality.
@@ -119,6 +131,8 @@ Multi-Arch: same
 Depends: libqt6scxml6 (= ${binary:Version}),
          libqt6scxml6-bin (= ${binary:Version}),
          libqt6statemachine6 (= ${binary:Version}),
+         qml6-module-qtqml-statemachine (= ${binary:Version}),
+         qml6-module-qtscxml (= ${binary:Version}),
          qt6-base-dev,
          ${misc:Depends},
 Description: Qt 6 SCXML - development files
@@ -135,9 +149,11 @@ Description: Qt 6 SCXML - development files
  This package contains the development files for Qt 6 SCXML.
 
 Package: qt6-scxml-doc
+Build-Profiles: <!nodoc>
 Architecture: all
 Section: doc
-Depends: qt6-base-doc, ${misc:Depends},
+Depends: qt6-base-doc,
+         ${misc:Depends},
 Multi-Arch: foreign
 Description: Qt 6 scxml documentation
  Qt is a cross-platform C++ application framework. Qt's primary feature
@@ -146,9 +162,11 @@ Description: Qt 6 scxml documentation
  This package contains the documentation for the Qt 6 scxml.
 
 Package: qt6-scxml-doc-html
+Build-Profiles: <!nodoc>
 Architecture: all
 Section: doc
-Depends: qt6-base-doc-html, ${misc:Depends},
+Depends: qt6-base-doc-html,
+         ${misc:Depends},
 Multi-Arch: foreign
 Description: Qt 6 scxml HTML documentation
  Qt is a cross-platform C++ application framework. Qt's primary feature
@@ -157,9 +175,11 @@ Description: Qt 6 scxml HTML documentation
  This package contains the HTML documentation for the Qt 6 scxml.
 
 Package: qt6-scxml-doc-dev
+Build-Profiles: <!nodoc>
 Architecture: all
 Section: libdevel
-Depends: qt6-base-doc-dev, ${misc:Depends},
+Depends: qt6-base-doc-dev,
+         ${misc:Depends},
 Multi-Arch: foreign
 Description: Qt 6 scxml tags files
  Qt is a cross-platform C++ application framework. Qt's primary feature
@@ -172,7 +192,8 @@ Package: qt6-scxml-examples
 Architecture: any
 Multi-Arch: same
 Section: misc
-Depends: ${misc:Depends}, ${shlibs:Depends},
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
 Description: Qt 6 scxml examples
  Qt is a cross-platform C++ application framework. Qt's primary feature
  is its rich set of widgets that provide standard GUI functionality.

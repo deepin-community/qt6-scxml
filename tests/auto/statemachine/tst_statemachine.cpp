@@ -38,10 +38,22 @@ private Q_SLOTS:
     void multipleInvokableServices(); // QTBUG-61484
     void logWithoutExpr();
 
+    void foreachLoop();
+
     void bindings();
 
     void setTableDataUpdatesObjectNames();
+
+    void finalizeRunsOnDoneInvokeEvents();
+    void errorsFromNestedStatemachine(); // QTBUG-135396
 };
+
+void tst_StateMachine::errorsFromNestedStatemachine()
+{
+    QScopedPointer<QScxmlStateMachine> machine(QScxmlStateMachine::fromFile(":/tst_statemachine/nestedinvoker.scxml"));
+    auto error = machine->parseErrors().front();
+    QCOMPARE(error.fileName(), "nestederror.scxml");
+}
 
 void tst_StateMachine::stateNames_data()
 {
@@ -457,6 +469,45 @@ void tst_StateMachine::logWithoutExpr()
     QTRY_COMPARE(logSpy.size(), 1);
 }
 
+void tst_StateMachine::foreachLoop()
+{
+    QScopedPointer<QScxmlStateMachine> stateMachine(
+                QScxmlStateMachine::fromFile(QString(":/tst_statemachine/foreach.scxml")));
+    QVERIFY(!stateMachine.isNull());
+
+    qRegisterMetaType<QScxmlEvent>();
+    QSignalSpy finishedSpy(stateMachine.data(), SIGNAL(finished()));
+
+    int events1 = 0;
+    int events2 = 0;
+    int events3 = 0;
+
+    auto con1 = stateMachine->connectToEvent("internalEvent1", [&events1](const QScxmlEvent &event) {
+        ++events1;
+        QCOMPARE(event.name(), QString("internalEvent1"));
+    });
+    QVERIFY(con1);
+
+    auto con2 = stateMachine->connectToEvent("internalEvent2", [&events2](const QScxmlEvent &event) {
+        ++events2;
+        QCOMPARE(event.name(), QString("internalEvent2"));
+    });
+    QVERIFY(con2);
+
+    auto con3 = stateMachine->connectToEvent("internalEvent3", [&events3](const QScxmlEvent &event) {
+        ++events3;
+        QCOMPARE(event.name(), QString("internalEvent3"));
+    });
+    QVERIFY(con3);
+
+    stateMachine->start();
+
+    finishedSpy.wait(5000);
+    QCOMPARE(events1, 3);
+    QCOMPARE(events2, 3);
+    QCOMPARE(events3, 3);
+}
+
 void tst_StateMachine::bindings()
 {
     // -- QScxmlStateMachine::initialized
@@ -539,7 +590,7 @@ void tst_StateMachine::bindings()
     // -- QScxmlStateMachine::invokedServices
     // Test executes statemachine and observes as the invoked services change
     TopMachine topSm;
-    QSignalSpy invokedSpy(&topSm, SIGNAL(invokedServicesChanged(const QList<QScxmlInvokableService *>)));
+    QSignalSpy invokedSpy(&topSm, SIGNAL(invokedServicesChanged(QList<QScxmlInvokableService*>)));
     QCOMPARE(topSm.invokedServices().size(), 0);
     // at some point during the topSm execution there are 3 invoked services
     topSm.start();
@@ -592,6 +643,23 @@ void tst_StateMachine::setTableDataUpdatesObjectNames()
     // object name already set, so do not update
     sm->setTableData(stateMachine2->tableData());
     QCOMPARE_EQ(sm->objectName(), sm1ObjectName); // did not change
+}
+
+void tst_StateMachine::finalizeRunsOnDoneInvokeEvents()
+{
+    QScopedPointer<QScxmlStateMachine> stateMachine(
+                QScxmlStateMachine::fromFile(QString(":/tst_statemachine/finalizeOnDoneInvokeEvent.scxml")));
+    QVERIFY(!stateMachine.isNull());
+
+    QSignalSpy logSpy(stateMachine.data(), SIGNAL(log(QString,QString)));
+
+    stateMachine->start();
+
+    QTRY_COMPARE(logSpy.size(), 1);
+
+    QList<QVariant> arguments = logSpy.takeFirst();
+    QCOMPARE(arguments.at(0).toString(), QString(u"finalize"));
+    QVERIFY(arguments.at(1).toString().startsWith("done.invoke.s0"));
 }
 
 QTEST_MAIN(tst_StateMachine)

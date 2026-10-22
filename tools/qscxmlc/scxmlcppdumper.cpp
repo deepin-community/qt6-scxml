@@ -3,12 +3,14 @@
 
 #include "scxmlcppdumper.h"
 #include "generator.h"
+#include "../../src/3rdparty/sha1/sha1.cpp"
 
 #include <QtScxml/private/qscxmlexecutablecontent_p.h>
 
-#include <QtCore/qfileinfo.h>
 #include <QtCore/qbuffer.h>
 #include <QtCore/qfile.h>
+#include <QtCore/qfileinfo.h>
+#include <QtCore/qjsonobject.h>
 #include <QtCore/qresource.h>
 
 #include <algorithm>
@@ -723,6 +725,24 @@ QString CppDumper::generateSignalDecls(const GeneratedTableData::MetaDataInfo &i
     return decls;
 }
 
+QByteArray classDefJsonObjectHash(const QJsonObject &object)
+{
+    const QByteArray json = QJsonDocument(object).toJson(QJsonValue::JsonFormat::Compact);
+    QByteArray hash(20, 0); // SHA1 produces 160 bits of data
+
+    {
+        Sha1State state;
+        sha1InitState(&state);
+        sha1Update(&state, reinterpret_cast<const uchar *>(json.constData()), json.size());
+        sha1FinalizeState(&state);
+        sha1ToHash(&state, reinterpret_cast<uchar *>(hash.data()));
+    }
+
+    static const char revisionPrefix[] = "0$";
+    const QByteArray hashB64 = hash.toBase64(QByteArray::OmitTrailingEquals);
+    return revisionPrefix + hashB64;
+}
+
 QString CppDumper::generateMetaObject(const QString &className,
                                       const GeneratedTableData::MetaDataInfo &info)
 {
@@ -746,7 +766,6 @@ QString CppDumper::generateMetaObject(const QString &className,
     arg.type.rawName = arg.type.name;
     arg.normalizedType = arg.type.name;
     arg.name = "parent";
-    arg.typeNameForCast = arg.type.name + "*";
     constructor.arguments.append(arg);
     classDef.constructorList.append(constructor);
 
@@ -774,7 +793,6 @@ QString CppDumper::generateMetaObject(const QString &className,
         arg.type.rawName = arg.type.name;
         arg.normalizedType = arg.type.name;
         arg.name = "active";
-        arg.typeNameForCast = arg.type.name + "*";
         signal.arguments << arg;
         classDef.signalList << signal;
 
@@ -794,6 +812,10 @@ QString CppDumper::generateMetaObject(const QString &className,
     // sub-statemachines:
     QHash<QByteArray, QByteArray> knownQObjectClasses;
     knownQObjectClasses.insert(QByteArray("QScxmlStateMachine"), QByteArray());
+
+    QHash<QByteArray, QJsonObject> classDefJsonObjects;
+    const QJsonObject jsonObject = classDef.toJson();
+    classDefJsonObjects.insert(classDef.qualified, jsonObject);
 
     QBuffer buf;
     buf.open(QIODevice::WriteOnly);

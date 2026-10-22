@@ -1,5 +1,6 @@
 // Copyright (C) 2021 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:scritical reason:data-parser
 
 #ifndef QSCXMLCOMPILER_P_H
 #define QSCXMLCOMPILER_P_H
@@ -27,6 +28,7 @@
 #include <QtCore/private/qglobal_p.h>
 
 #include <memory>
+#include <optional>
 
 QT_BEGIN_NAMESPACE
 
@@ -284,7 +286,7 @@ struct Transition: public StateOrTransition
 {
     enum Type { Internal, External, Synthetic };
     QStringList events;
-    QScopedPointer<QString> condition;
+    std::optional<QString> condition;
     QStringList targets;
     InstructionSequence instructionsOnTransition;
     Type type;
@@ -544,7 +546,7 @@ public:
     QList<QScxmlError> errors() const;
 
     void addError(const QString &msg);
-    void addError(const DocumentModel::XmlLocation &location, const QString &msg);
+    void addError(const QString &fileName, const DocumentModel::XmlLocation &location, const QString &msg);
     QScxmlStateMachine *instantiateStateMachine() const;
     void instantiateDataModel(QScxmlStateMachine *stateMachine) const;
 

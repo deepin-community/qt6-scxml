@@ -1,5 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:critical reason:code-generation
 
 #include <QtScxml/private/qscxmlglobals_p.h>
 #include "qscxmlecmascriptdatamodel_p.h"
@@ -151,9 +152,8 @@ public:
             auto keyValues = eventData.value<QVariantMap>();
             auto data = engine->newObject();
 
-            for (QVariantMap::const_iterator it = keyValues.begin(), eit = keyValues.end(); it != eit; ++it) {
+            for (auto it = keyValues.cbegin(), eit = keyValues.cend(); it != eit; ++it)
                 data.setProperty(it.key(), engine->toScriptValue(it.value()));
-            }
 
             return data;
         }
@@ -431,7 +431,7 @@ void QScxmlEcmaScriptDataModel::evaluateForeach(QScxmlExecutableContent::Evaluat
     Q_ASSERT(body);
     const ForeachInfo &info = d->m_stateMachine->tableData()->foreachInfo(id);
 
-    QJSValue jsArray = d->property(d->string(info.array));
+    QJSValue jsArray = d->evalJSValue(d->string(info.array), d->string(info.context), ok);
     if (!jsArray.isArray()) {
         d->submitError(QStringLiteral("error.execution"), QStringLiteral("invalid array '%1' in %2").arg(d->string(info.array), d->string(info.context)));
         *ok = false;
